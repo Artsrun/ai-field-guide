@@ -1,1 +1,466 @@
-PLACEHOLDER
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Before the Field Guide — an opener</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f5f5f2;
+    --color-background-tertiary: #eeece6;
+    --color-text-primary: #1a1a18;
+    --color-text-secondary: #5a5a56;
+    --color-text-tertiary: #9a9a94;
+    --color-border-tertiary: rgba(0,0,0,0.12);
+    --color-border-secondary: rgba(0,0,0,0.22);
+    --violet: #534AB7;
+    --violet-soft: #EEEDFE;
+    --green: #1D9E75;
+    --green-soft: #E1F5EE;
+    --warn: #D85A30;
+    --warn-soft: #FAECE7;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-background-primary: #1e1e1c;
+      --color-background-secondary: #28281f;
+      --color-background-tertiary: #2e2e28;
+      --color-text-primary: #e8e8e0;
+      --color-text-secondary: #a0a09a;
+      --color-text-tertiary: #666660;
+      --color-border-tertiary: rgba(255,255,255,0.10);
+      --color-border-secondary: rgba(255,255,255,0.18);
+      --violet-soft: #2a2748;
+      --green-soft: #17352c;
+      --warn-soft: #3a231a;
+    }
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-background-tertiary);
+    color: var(--color-text-primary);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .stage {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem 1rem 0;
+  }
+
+  /* ── rail ── */
+  .rail { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  .rail-title { font-size: 12px; font-weight: 500; color: var(--color-text-secondary); }
+  .rail-title b { color: var(--violet); font-weight: 500; }
+  .ticks { display: flex; gap: 4px; margin-left: auto; }
+  .tick {
+    width: 26px; height: 3px; border-radius: 2px; border: 0;
+    background: var(--color-border-tertiary); cursor: pointer; padding: 0;
+    transition: background .2s;
+  }
+  .tick.on { background: var(--violet); }
+  .tick:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
+
+  /* ── card ── */
+  .slide {
+    background: var(--color-background-primary);
+    border: 0.5px solid var(--color-border-tertiary);
+    border-radius: var(--border-radius-lg);
+    padding: 1.75rem;
+    flex: 1;
+    display: none;
+    animation: rise .25s ease;
+  }
+  .slide.live { display: block; }
+  @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .eyebrow {
+    font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+    font-weight: 500; color: var(--color-text-tertiary); margin-bottom: 10px;
+    font-family: var(--font-mono);
+  }
+  h2 { font-size: 27px; font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; margin-bottom: 10px; }
+  .lede { font-size: 15px; line-height: 1.65; color: var(--color-text-secondary); max-width: 62ch; }
+  .lede + .lede { margin-top: 10px; }
+  .lede strong { color: var(--color-text-primary); font-weight: 500; }
+  .aside {
+    margin-top: 1.25rem; padding: 12px 14px;
+    background: var(--color-background-secondary);
+    border-left: 2px solid var(--color-border-secondary);
+    border-radius: var(--border-radius-md);
+    font-size: 13px; line-height: 1.6; color: var(--color-text-secondary);
+  }
+
+  /* ── slide 1 cold open ── */
+  .cold { display: flex; flex-direction: column; justify-content: center; height: 100%; min-height: 300px; }
+  .cold h2 { font-size: 38px; max-width: 22ch; }
+  .cold .stamp {
+    display: inline-flex; align-items: center; gap: 8px; align-self: flex-start;
+    background: var(--green-soft); color: var(--green);
+    font-size: 12px; font-weight: 500; padding: 5px 11px;
+    border-radius: 999px; margin-bottom: 1.25rem;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+  /* ── fear ledger (signature) ── */
+  .ledger { display: grid; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); gap: 10px; margin-top: 1.1rem; }
+  .fear {
+    position: relative; min-height: 132px; border: 0; padding: 0;
+    background: transparent; cursor: pointer; text-align: left;
+    perspective: 900px; font-family: inherit;
+  }
+  .fear:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; border-radius: var(--border-radius-md); }
+  .face {
+    position: absolute; inset: 0; border-radius: var(--border-radius-md);
+    padding: 14px; display: flex; flex-direction: column; gap: 7px;
+    backface-visibility: hidden; transition: transform .45s cubic-bezier(.4,.1,.2,1);
+    border: 0.5px solid var(--color-border-tertiary);
+  }
+  .front { background: var(--warn-soft); }
+  .back { background: var(--green-soft); transform: rotateY(180deg); }
+  .fear[aria-pressed="true"] .front { transform: rotateY(-180deg); }
+  .fear[aria-pressed="true"] .back { transform: rotateY(0); }
+  .f-tag { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; font-weight: 500; font-family: var(--font-mono); }
+  .front .f-tag { color: var(--warn); }
+  .back .f-tag { color: var(--green); }
+  .f-q { font-size: 14px; font-weight: 500; line-height: 1.4; color: var(--color-text-primary); }
+  .f-a { font-size: 12.5px; line-height: 1.55; color: var(--color-text-secondary); }
+  .f-hint { margin-top: auto; font-size: 10px; color: var(--color-text-tertiary); font-family: var(--font-mono); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .face { transition: none; }
+    .slide { animation: none; }
+    .fear[aria-pressed="true"] .front { transform: none; visibility: hidden; }
+    .back { transform: none; visibility: hidden; }
+    .fear[aria-pressed="true"] .back { visibility: visible; }
+  }
+
+  /* ── lists ── */
+  .rows { list-style: none; margin-top: 1.1rem; }
+  .rows li {
+    display: flex; gap: 12px; padding: 11px 0;
+    border-bottom: 0.5px solid var(--color-border-tertiary);
+    font-size: 13.5px; line-height: 1.6; color: var(--color-text-secondary);
+  }
+  .rows li: last-child { border-bottom: 0; }
+  .rows b { display: block; color: var(--color-text-primary); font-weight: 500; margin-bottom: 2px; }
+  .mk {
+    flex-shrink: 0; width: 22px; height: 22px; border-radius: 6px;
+    display: grid; place-items: center; font-size: 11px; font-weight: 600;
+    font-family: var(--font-mono);
+  }
+  .mk-warn { background: var(--warn-soft); color: var(--warn); }
+  .mk-good { background: var(--green-soft); color: var(--green); }
+  .mk-do { background: var(--violet-soft); color: var(--violet); }
+
+  /* ── prompt compare ── */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 1.1rem; }
+  .pcol { border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-md); overflow: hidden; }
+  .pcol header {
+    padding: 7px 12px; font-size: 11px; font-weight: 500;
+    letter-spacing: .08em; text-transform: uppercase; font-family: var(--font-mono);
+    display: flex; justify-content: space-between; align-items: center; gap: 8px;
+  }
+  .pcol.bad header { background: var(--warn-soft); color: var(--warn); }
+  .pcol.good header { background: var(--green-soft); color: var(--green); }
+  .pbody {
+    padding: 12px; font-family: var(--font-mono); font-size: 12px;
+    line-height: 1.65; color: var(--color-text-secondary); white-space: pre-wrap;
+  }
+  .pbody em { color: var(--violet); font-style: normal; }
+  .copy {
+    border: 0.5px solid currentColor; background: transparent; color: inherit;
+    font-size: 10px; font-family: var(--font-mono); padding: 2px 7px;
+    border-radius: 5px; cursor: pointer;
+  }
+  .copy:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+
+  /* ── handoff ── */
+  .exits { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; margin-top: 1.1rem; }
+  .exit {
+    background: var(--color-background-secondary); border-radius: var(--border-radius-md);
+    padding: 14px; border-left: 2px solid var(--violet);
+  }
+  .exit-t { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+  .exit-b { font-size: 12.5px; line-height: 1.55; color: var(--color-text-secondary); }
+
+  /* ── controls ── */
+  .controls {
+    display: flex; align-items: center; gap: 8px;
+    max-width: 900px; margin: 0 auto; width: 100%;
+    padding: 14px 1rem 18px;
+  }
+  .nav-btn {
+    font-family: inherit; font-size: 13px; font-weight: 500;
+    padding: 8px 16px; border-radius: var(--border-radius-md);
+    border: 0.5px solid var(--color-border-secondary);
+    background: transparent; color: var(--color-text-secondary); cursor: pointer;
+  }
+  .nav-btn:hover:not(:disabled) { background: var(--color-background-secondary); }
+  .nav-btn:disabled { opacity: .35; cursor: not-allowed; }
+  .nav-btn.primary { background: var(--violet); border-color: var(--violet); color: #fff; }
+  .nav-btn:focus-visible { outline: 2px solid var(--violet); outline-offset: 3px; }
+  .count { margin-left: auto; font-size: 11px; font-family: var(--font-mono); color: var(--color-text-tertiary); }
+
+  @media (max-width: 640px) {
+    .stage { padding: 1rem .75rem 0; }
+    .slide { padding: 1.25rem; }
+    h2 { font-size: 23px; }
+    .cold h2 { font-size: 29px; }
+    .compare { grid-template-columns: 1fr; }
+    .ticks { display: none; }
+  }
+
+/* ── unified nav (injected) ──────────────────────────────── */
+.nav { position: sticky; top: 0; z-index: 40; background: var(--color-background-tertiary, #eeece6); border-bottom: 1px solid var(--color-border-tertiary, rgba(26,26,24,.14)); }
+.nav__in { max-width: 900px; margin: 0 auto; padding: 8px 16px; display: flex; align-items: center; gap: 8px; }
+.nav__brand { display: flex; align-items: center; gap: 10px; margin-right: auto; min-width: 0; text-decoration: none; color: inherit; }
+.nav__mark { width: 30px; height: 30px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 7px; background: var(--violet-soft); border: 1px solid var(--violet); color: var(--violet); font-family: var(--font-mono); font-size: 10px; font-weight: 600; }
+.nav__title { font-family: var(--font-sans); font-size: .95rem; color: var(--color-text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nav__links { display: flex; gap: 2px; flex-wrap: wrap; justify-content: flex-end; }
+.nav__link { padding: 6px 10px; border-radius: 999px; font-family: var(--font-mono); font-size: 11px; letter-spacing: .04em; color: var(--color-text-tertiary); text-decoration: none; border: 1px solid transparent; transition: color .15s, background .15s; }
+.nav__link:hover { color: var(--color-text-primary); background: var(--color-background-secondary); }
+.nav__link.is-active { color: var(--violet); background: var(--violet-soft); border-color: var(--violet); }
+@media (max-width: 520px) { .nav__title { display: none; } .nav__link { padding: 5px 8px; font-size: 10px; } }
+</style>
+</head>
+<body>
+<nav class="nav" aria-label="Main">
+  <div class="nav__in">
+    <a class="nav__brand" href="../">
+      <span class="nav__mark">AI</span>
+      <span class="nav__title">Field Guide</span>
+    </a>
+    <div class="nav__links">
+      <a class="nav__link" href="../">Hub</a>
+      <a class="nav__link is-active" href="../opener/">Opener</a>
+      <a class="nav__link" href="../glossary/">Glossary</a>
+      <a class="nav__link" href="../game/">Game</a>
+      <a class="nav__link" href="../neural/">Neural</a>
+    </div>
+  </div>
+</nav>
+
+<div class="stage">
+  <div class="rail">
+    <span class="rail-title">Before the Field Guide · <b>10 minutes</b></span>
+    <div class="ticks" id="ticks"></div>
+  </div>
+
+  <!-- 1 ─ cold open -->
+  <section class="slide live">
+    <div class="cold">
+      <span class="stamp"><span class="dot"></span>Start here</span>
+      <h2>Nobody in this room is getting replaced by a chatbot.</h2>
+      <p class="lede">What follows is not a sales pitch. We're going to spend the first half of this on the things AI gets <strong>wrong</strong>, because you can't use a tool you don't trust, and you shouldn't trust one you've only heard promises about.</p>
+      <p class="lede">Then we'll do the part that actually saves you time. Roughly twenty minutes of real work, not a career change.</p>
+    </div>
+  </section>
+
+  <!-- 2 ─ fear ledger -->
+  <section class="slide">
+    <div class="eyebrow">02 · the ledger</div>
+    <h2>Six things people actually say out loud</h2>
+    <p class="lede">Not the polite version. Tap any card to see the honest answer — including the ones where the worry is fair.</p>
+    <div class="ledger" id="ledger"></div>
+  </section>
+
+  <!-- 3 ─ failure modes -->
+  <section class="slide">
+    <div class="eyebrow">03 · where it breaks</div>
+    <h2>The failure modes, before the features</h2>
+    <p class="lede">These are not bugs waiting for a patch. They're properties of how the thing works. Learn them once and you stop being surprised.</p>
+    <ul class="rows">
+      <li><span class="mk mk-warn">01</span><span><b>It is confidently wrong</b>Especially about version numbers, prices, dates, and anything it half-remembers. It never sounds unsure. Check anything you'd be embarrassed to be wrong about.</span></li>
+      <li><span class="mk mk-warn">02</span><span><b>It forgets everything between chats</b>Each conversation starts from zero. Nothing carries over unless you paste it in again. This is a feature for privacy and a chore for you.</span></li>
+      <li><span class="mk mk-warn">03</span><span><b>It agrees with you too easily</b>Say a bad plan with confidence and it will help you execute the bad plan. Ask "what's wrong with this?" — you have to invite the pushback.</span></li>
+      <li><span class="mk mk-warn">04</span><span><b>Long chats rot</b>Once a wrong assumption is in the conversation, it sticks and spreads. When answers start drifting, don't argue — open a new chat.</span></li>
+      <li><span class="mk mk-warn">05</span><span><b>It approximates instead of counting</b>Arithmetic, tallies, "how many rows" — treat with suspicion unless it shows the work or runs code.</span></li>
+    </ul>
+    <div class="aside">The rule that covers all five: <strong>you don't send anything you couldn't defend in a meeting.</strong> The output is a draft. You're still the one signing it.</div>
+  </section>
+
+  <!-- 4 ─ what it's good at -->
+  <section class="slide">
+    <div class="eyebrow">04 · what it's genuinely good at</div>
+    <h2>Now the useful part</h2>
+    <p class="lede">Notice the pattern: every one of these is a job where <strong>a fast rough draft is more valuable than a slow perfect one</strong>, because you're going to edit it anyway.</p>
+    <ul class="rows">
+      <li><span class="mk mk-good">✓</span><span><b>The blank page problem</b>Emails, summaries, meeting notes, job descriptions, first outlines. Getting to a bad draft in 30 seconds is worth more than staring at nothing for 30 minutes.</span></li>
+      <li><span class="mk mk-good">✓</span><span><b>Explaining unfamiliar things at your level</b>Paste a document, a contract clause, an error message, a spreadsheet formula. Ask for it in plain language. Then ask a follow-up. This is the single most underused thing it does.</span></li>
+      <li><span class="mk mk-good">✓</span><span><b>Turning mess into structure</b>Twelve scattered notes into a table. A rambling thread into three decisions and an owner for each.</span></li>
+      <li><span class="mk mk-good">✓</span><span><b>Being the person you think out loud at</b>It has infinite patience for your half-formed idea at 6pm. Ask it to argue the other side.</span></li>
+      <li><span class="mk mk-good">✓</span><span><b>Boring translation work</b>Between languages, formats, tones, or "make this the same thing but for a customer instead of my boss."</span></li>
+    </ul>
+  </section>
+
+  <!-- 5 ─ the one skill -->
+  <section class="slide">
+    <div class="eyebrow">05 · the one skill</div>
+    <h2>The whole skill is telling it what you actually want</h2>
+    <p class="lede">Same request, same model, thirty seconds apart. The difference is not magic words — it's <strong>the context you already have in your head and didn't say.</strong></p>
+    <div class="compare">
+      <div class="pcol bad">
+        <header>vague<span>→ generic</span></header>
+        <div class="pbody">Write an email about the delay.</div>
+      </div>
+      <div class="pcol good">
+        <header>specific<button class="copy" id="copyBtn">copy</button></header>
+        <div class="pbody" id="goodPrompt">Write an email to a client telling them
+our delivery slips by one month.
+
+Cause: supplier shortage, not our error.
+Tone: apologetic but not groveling.
+They are already annoyed — this is
+the second delay.
+Must include: new date, what we're
+doing about it, no excuses paragraph.
+Under 150 words.</div>
+      </div>
+    </div>
+    <div class="aside">Four questions turn any vague ask into a good one: <strong>who is it for · what's the situation · what must it include · how long.</strong> That's it. That's the course.</div>
+  </section>
+
+  <!-- 6 ─ first 20 minutes -->
+  <section class="slide">
+    <div class="eyebrow">06 · today, not someday</div>
+    <h2>Your first twenty minutes</h2>
+    <p class="lede">Don't start with your hardest problem. Start with something boring you already know the right answer to — that's how you calibrate how much to trust it.</p>
+    <ul class="rows">
+      <li><span class="mk mk-do">1</span><span><b>Pick the dullest thing you did yesterday</b>Ask for a first draft using the four questions. Judge the draft like you'd judge a junior colleague's. Six minutes.</span></li>
+      <li><span class="mk mk-do">2</span><span><b>Paste something you didn't fully understand</b>A document, a log, a policy. Ask for plain language. Then ask: "what part of this are you least sure about?" Six minutes.</span></li>
+      <li><span class="mk mk-do">3</span><span><b>Write down the one prompt that worked</b>Save it. Send it to one colleague. A team gets good at this by sharing prompts, not by attending talks. Eight minutes.</span></li>
+    </ul>
+    <div class="aside">If nothing works today, that's real information and worth saying out loud. "I tried it on X and it was useless" is a more useful contribution than enthusiasm.</div>
+  </section>
+
+  <!-- 7 ─ handoff -->
+  <section class="slide">
+    <div class="eyebrow">07 · where to go next</div>
+    <h2>Three doors, pick by mood</h2>
+    <p class="lede">Everything below is self-contained and opens in a browser. No account, no install, no one tracking whether you finished.</p>
+    <div class="exits">
+      <div class="exit">
+        <div class="exit-t">The Field Guide</div>
+        <div class="exit-b">Five chapters: history, the tools, prompting patterns, running AI on your own laptop, what's coming. Start at the Basics tier if today was your first exposure.</div>
+      </div>
+      <div class="exit">
+        <div class="exit-t">Wheel of Lessons</div>
+        <div class="exit-b">36 rounds, six categories, one question each. Russian and English. Genuinely a game — bring coffee, it takes about 40 minutes.</div>
+      </div>
+      <div class="exit">
+        <div class="exit-t">The prompting guide</div>
+        <div class="exit-b">Side-by-side bad and good prompts for real work tasks. Copy the ones that match what you do and edit them.</div>
+      </div>
+    </div>
+    <div class="aside">One ask: come back in two weeks with <strong>one thing that worked and one thing that didn't.</strong> That's the whole ask. The skeptics in the room are the most useful people in it.</div>
+  </section>
+
+</div>
+
+<div class="controls">
+  <button class="nav-btn" id="prev">← Back</button>
+  <button class="nav-btn primary" id="next">Next →</button>
+  <span class="count" id="count"></span>
+</div>
+
+<script>
+  const FEARS = [
+    { q: "AI is going to take my job.",
+      a: "It automates typing, not deciding. The scarce thing becomes judgment — knowing what to build, spotting the answer that's subtly wrong. You already have that. It doesn't." },
+    { q: "I'll look stupid using it badly.",
+      a: "Everyone in this room is a beginner. The tools are about three years old in real workplaces and nobody has mastered them. Asking badly is literally the practice." },
+    { q: "It makes things up.",
+      a: "Correct, and this worry is fair. It won't fully stop. That's exactly why the rule is: never send what you can't defend yourself." },
+    { q: "Where does my data go?",
+      a: "Also fair, also your responsibility. Know which tool is approved, never paste customer data or credentials, ask before you assume. Boring rules, non-negotiable." },
+    { q: "I'm already too late to start.",
+      a: "The practices we're describing were invented this year. There is no ten-year veteran. Late is a feeling, not a position." },
+    { q: "If I automate my work, I automate myself out.",
+      a: "You automate the part you dislike, and it's the part nobody promotes you for. Nobody was made redundant by learning spreadsheet formulas." }
+  ];
+
+  const ledger = document.getElementById('ledger');
+  FEARS.forEach(({ q, a }, i) => {
+    const b = document.createElement('button');
+    b.className = 'fear';
+    b.setAttribute('aria-pressed', 'false');
+    b.innerHTML = `
+      <span class="face front">
+        <span class="f-tag">the worry</span>
+        <span class="f-q">${q}</span>
+        <span class="f-hint">tap →</span>
+      </span>
+      <span class="face back">
+        <span class="f-tag">honestly</span>
+        <span class="f-a">${a}</span>
+      </span>`;
+    b.addEventListener('click', () => {
+      b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') === 'true' ? 'false' : 'true');
+    });
+    ledger.appendChild(b);
+  });
+
+  const slides = [...document.querySelectorAll('.slide')];
+  const ticks = document.getElementById('ticks');
+  const prev = document.getElementById('prev');
+  const next = document.getElementById('next');
+  const count = document.getElementById('count');
+  let at = 0;
+
+  slides.forEach((_, i) => {
+    const t = document.createElement('button');
+    t.className = 'tick';
+    t.setAttribute('aria-label', `Slide ${i + 1}`);
+    t.addEventListener('click', () => go(i));
+    ticks.appendChild(t);
+  });
+
+  const go = (i) => {
+    at = Math.max(0, Math.min(slides.length - 1, i));
+    slides.forEach((s, n) => s.classList.toggle('live', n === at));
+    [...ticks.children].forEach((t, n) => t.classList.toggle('on', n <= at));
+    prev.disabled = at === 0;
+    next.textContent = at === slides.length - 1 ? 'Start over' : 'Next →';
+    count.textContent = `${at + 1} / ${slides.length}`;
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  prev.addEventListener('click', () => go(at - 1));
+  next.addEventListener('click', () => go(at === slides.length - 1 ? 0 : at + 1));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === 'PageDown') go(at + 1);
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') go(at - 1);
+  });
+
+  document.getElementById('copyBtn').addEventListener('click', async (e) => {
+    e.stopPropagation();
+    const btn = e.currentTarget;
+    try {
+      await navigator.clipboard.writeText(document.getElementById('goodPrompt').textContent);
+      btn.textContent = 'copied';
+    } catch { btn.textContent = 'select it'; }
+    setTimeout(() => { btn.textContent = 'copy'; }, 1600);
+  });
+
+  go(0);
+</script>
+</body>
+</html>
