@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<meta name="theme-color" content="#eeece6" id="meta-theme" />
+<title>AI Field Guide</title>
+<meta name="description" content="Opener, 0–100 Glossary, Поле Чудес game, and Neural quiz. Zero-dependency educational suite." />
+<style>
+:root {
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 16px; --sp-4: 24px; --sp-5: 40px;
+  --r-1: 4px; --r-2: 10px; --r-3: 14px;
+  --serif: "Iowan Old Style", ui-serif, Georgia, "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --mono: "SFMono-Regular", ui-monospace, Consolas, "Liberation Mono", monospace;
+  --fs-base: 17px; --fs-label: .7rem; --fs-small: .875rem; --lh-body: 1.65;
+  --tap: 44px;
+}
+@media (max-width: 599px) { :root { --fs-base: 16px; } }
+
+[data-theme="light"] {
+  --bg: #eeece6; --elev: #ffffff; --well: #f6f5f1;
+  --line: rgba(26,26,24,.14); --line-2: rgba(26,26,24,.07);
+  --ink: #17171a; --body: #45453f; --muted: #6c6c64;
+  --brand: #4A42A8; --brand-fill: rgba(83,74,183,.07); --brand-edge: rgba(83,74,183,.26);
+  --ok: #14735A; --ok-fill: rgba(29,158,117,.09); --ok-edge: rgba(29,158,117,.32);
+  --shadow: 0 12px 40px rgba(26,26,24,.12);
+}
+[data-theme="dark"] {
+  --bg: #1c1c1a; --elev: #252522; --well: #212120;
+  --line: rgba(255,255,255,.12); --line-2: rgba(255,255,255,.055);
+  --ink: #eae9e1; --body: #bab9af; --muted: #88877e;
+  --brand: #ADA5F4; --brand-fill: rgba(83,74,183,.24); --brand-edge: rgba(173,165,244,.34);
+  --ok: #52D3A4; --ok-fill: rgba(29,158,117,.17); --ok-edge: rgba(82,211,164,.32);
+  --shadow: 0 12px 40px rgba(0,0,0,.5);
+}
+
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100vh; min-height: 100dvh;
+  font-family: var(--sans); font-size: var(--fs-base); line-height: var(--lh-body);
+  background: var(--bg); color: var(--body);
+  transition: background-color .2s, color .2s;
+}
+h1, h2, h3 { margin: 0; color: var(--ink); font-weight: 600; line-height: 1.18; }
+p { margin: 0; text-wrap: pretty; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: var(--r-1); }
+.lbl { font-family: var(--mono); font-size: var(--fs-label); letter-spacing: .13em; text-transform: uppercase; color: var(--muted); }
+
+/* ── unified nav ─────────────────────────────────────────── */
+.nav {
+  position: sticky; top: 0; z-index: 30;
+  background: var(--bg); border-bottom: 1px solid var(--line);
+}
+.nav__in {
+  max-width: 760px; margin: 0 auto;
+  padding: 10px 16px;
+  display: flex; align-items: center; gap: 8px;
+}
+.nav__brand {
+  display: flex; align-items: center; gap: 10px;
+  margin-right: auto; min-width: 0;
+}
+.nav__mark {
+  width: 32px; height: 32px; flex: 0 0 auto;
+  display: grid; place-items: center;
+  border-radius: 8px; background: var(--brand-fill); border: 1px solid var(--brand-edge);
+  color: var(--brand); font-family: var(--mono); font-size: 11px; font-weight: 600;
+}
+.nav__title {
+  font-family: var(--serif); font-size: 1rem; color: var(--ink);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.nav__links {
+  display: flex; gap: 2px; flex-wrap: wrap; justify-content: flex-end;
+}
+.nav__link {
+  padding: 7px 11px; border-radius: 999px;
+  font-family: var(--mono); font-size: 11px; letter-spacing: .04em;
+  color: var(--muted); border: 1px solid transparent;
+  transition: color .15s, background .15s, border-color .15s;
+}
+.nav__link:hover { color: var(--ink); background: var(--well); }
+.nav__link.is-active {
+  color: var(--brand); background: var(--brand-fill); border-color: var(--brand-edge);
+}
+.icon-btn {
+  min-width: 40px; min-height: 40px; display: grid; place-items: center;
+  background: none; border: 1px solid var(--line); border-radius: 999px;
+  cursor: pointer; color: var(--muted);
+}
+.icon-btn:hover { color: var(--ink); border-color: var(--brand-edge); }
+.icon-btn svg { width: 17px; height: 17px; }
+
+/* ── main ────────────────────────────────────────────────── */
+main {
+  max-width: 760px; margin: 0 auto;
+  padding: 32px 16px 64px;
+}
+
+.hero {
+  margin-bottom: 40px;
+}
+.hero .lbl { display: block; margin-bottom: 10px; color: var(--brand); }
+.hero h1 {
+  font-family: var(--serif);
+  font-size: clamp(1.9rem, 6vw, 2.6rem);
+  letter-spacing: -.02em;
+  margin-bottom: 14px;
+  text-wrap: balance;
+}
+.hero p {
+  font-size: 1.05rem; color: var(--body); max-width: 42ch;
+}
+
+/* ── doors ───────────────────────────────────────────────── */
+.doors {
+  display: grid; gap: 12px;
+}
+@media (min-width: 560px) {
+  .doors { grid-template-columns: 1fr 1fr; }
+}
+
+.door {
+  display: flex; flex-direction: column;
+  background: var(--elev); border: 1px solid var(--line);
+  border-radius: var(--r-3); padding: 20px 18px 18px;
+  transition: border-color .15s, transform .15s, box-shadow .15s;
+  min-height: 168px;
+}
+.door:hover {
+  border-color: var(--brand-edge);
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+.door__num {
+  font-family: var(--mono); font-size: 11px; letter-spacing: .1em;
+  color: var(--brand); margin-bottom: 8px;
+}
+.door h2 {
+  font-family: var(--serif); font-size: 1.25rem;
+  margin-bottom: 8px;
+}
+.door p {
+  font-size: .9rem; color: var(--muted); flex: 1;
+  margin-bottom: 14px;
+}
+.door__cta {
+  font-family: var(--mono); font-size: 12px; letter-spacing: .04em;
+  color: var(--brand);
+}
+.door:hover .door__cta { text-decoration: underline; }
+
+.door--primary {
+  border-color: var(--brand-edge);
+  background: linear-gradient(160deg, var(--elev) 60%, var(--brand-fill));
+}
+
+/* ── footer ──────────────────────────────────────────────── */
+.ftr {
+  margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--line);
+  font-family: var(--mono); font-size: var(--fs-label); color: var(--muted);
+  line-height: 1.8; text-align: center;
+}
+.ftr a { color: var(--brand); }
+
+@media (prefers-reduced-motion: reduce) {
+  .door { transition: none; }
+  .door:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+
+<nav class="nav" aria-label="Main">
+  <div class="nav__in">
+    <a class="nav__brand" href="./" aria-current="page">
+      <span class="nav__mark">AI</span>
+      <span class="nav__title">Field Guide</span>
+    </a>
+    <div class="nav__links">
+      <a class="nav__link is-active" href="./">Hub</a>
+      <a class="nav__link" href="./opener/">Opener</a>
+      <a class="nav__link" href="./glossary/">Glossary</a>
+      <a class="nav__link" href="./game/">Game</a>
+      <a class="nav__link" href="./neural/">Neural</a>
+    </div>
+    <button class="icon-btn" id="theme-btn" aria-label="Colour theme">
+      <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></svg>
+    </button>
+  </div>
+</nav>
+
+<main>
+  <header class="hero">
+    <span class="lbl">Zero dependencies · public</span>
+    <h1>Learn the words.<br>Then use them.</h1>
+    <p>Four short, self-contained pieces. No account, no tracking, no install. Start with the opener if this is your first time.</p>
+  </header>
+
+  <div class="doors">
+    <a class="door door--primary" href="./opener/">
+      <span class="door__num">01 · 10 min</span>
+      <h2>Opener</h2>
+      <p>Fear ledger, failure modes, and the one skill that actually matters. Best place to begin.</p>
+      <span class="door__cta">Start here →</span>
+    </a>
+
+    <a class="door" href="./glossary/">
+      <span class="door__num">02 · reference</span>
+      <h2>0–100 Glossary</h2>
+      <p>Fifty terms ordered by how soon you will need them. Definitions + the specific way people get each one wrong.</p>
+      <span class="door__cta">Open glossary →</span>
+    </a>
+
+    <a class="door" href="./game/">
+      <span class="door__num">03 · game</span>
+      <h2>Поле Чудес</h2>
+      <p>Guess the AI term from its definition. Six rounds, wheel, letters. The words stick when you have to earn them.</p>
+      <span class="door__cta">Play →</span>
+    </a>
+
+    <a class="door" href="./neural/">
+      <span class="door__num">04 · quiz</span>
+      <h2>Neural Quiz</h2>
+      <p>Epoch, Batch, Logit, Learning Rate, Dropout. Short multiple-choice with a $5M final question.</p>
+      <span class="door__cta">Take quiz →</span>
+    </a>
+  </div>
+
+  <p class="ftr">
+    Built as a single public suite.<br>
+    <a href="https://github.com/Artsrun/ai-field-guide">Source on GitHub</a>
+  </p>
+</main>
+
+<script>
+const ICONS = {
+  auto:  '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/><path d="M12 8a4 4 0 0 0 0 8" fill="currentColor" stroke="none"/>',
+  light: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  dark:  '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+};
+const ORDER = ['auto', 'light', 'dark'];
+const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+const store = {
+  get() { try { return localStorage.getItem('ai-glossary-theme'); } catch { return null; } },
+  set(v) { try { localStorage.setItem('ai-glossary-theme', v); } catch {} },
+};
+let themeMode = ORDER.includes(store.get()) ? store.get() : 'auto';
+
+const applyTheme = () => {
+  const resolved = themeMode === 'auto' ? (systemDark.matches ? 'dark' : 'light') : themeMode;
+  document.documentElement.dataset.theme = resolved;
+  document.getElementById('theme-icon').innerHTML = ICONS[themeMode];
+  document.getElementById('theme-btn').setAttribute('aria-label', `Colour theme: ${themeMode}`);
+  document.getElementById('meta-theme').content = resolved === 'dark' ? '#1c1c1a' : '#eeece6';
+};
+document.getElementById('theme-btn').addEventListener('click', () => {
+  themeMode = ORDER[(ORDER.indexOf(themeMode) + 1) % ORDER.length];
+  store.set(themeMode);
+  applyTheme();
+});
+if (systemDark.addEventListener) systemDark.addEventListener('change', () => themeMode === 'auto' && applyTheme());
+applyTheme();
+</script>
+</body>
+</html>
