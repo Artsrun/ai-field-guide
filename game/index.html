@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light dark" />
+<meta name="theme-color" content="#eeece6" id="meta-theme" />
+<title>Поле Чудес — AI Glossary Edition</title>
+<meta name="description" content="Guess the AI word, one letter at a time. Six rounds, drawn from the 0-100 glossary." />
+
+<style>
+/* ══════════════════════════════════════════════════════════════
+   ПОЛЕ ЧУДЕС · AI GLOSSARY EDITION
+   Zero dependencies. Same design language as the glossary.
+   ══════════════════════════════════════════════════════════════ */
+
+:root {
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 16px; --sp-4: 24px; --sp-5: 40px;
+  --r-1: 4px; --r-2: 10px; --r-3: 14px;
+  --serif: "Iowan Old Style", ui-serif, Georgia, "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+  --mono: "SFMono-Regular", ui-monospace, Consolas, "Liberation Mono", monospace;
+  --fs-base: 17px; --fs-label: .7rem; --fs-small: .875rem; --lh-body: 1.7;
+  --tap: 44px;
+}
+@media (max-width: 599px) { :root { --fs-base: 16px; } }
+
+[data-theme="light"] {
+  --bg: #eeece6; --elev: #ffffff; --well: #f6f5f1;
+  --line: rgba(26,26,24,.14); --line-2: rgba(26,26,24,.07);
+  --ink: #17171a; --body: #45453f; --muted: #6c6c64;
+  --brand: #4A42A8; --brand-fill: rgba(83,74,183,.07); --brand-edge: rgba(83,74,183,.26);
+  --ok: #14735A; --ok-fill: rgba(29,158,117,.09); --ok-edge: rgba(29,158,117,.32);
+  --warn: #8A5A08; --warn-fill: rgba(154,101,8,.09); --warn-edge: rgba(154,101,8,.28);
+  --shadow: 0 12px 40px rgba(26,26,24,.14); --scrim: rgba(26,26,24,.40);
+}
+[data-theme="dark"] {
+  --bg: #1c1c1a; --elev: #252522; --well: #212120;
+  --line: rgba(255,255,255,.12); --line-2: rgba(255,255,255,.055);
+  --ink: #eae9e1; --body: #bab9af; --muted: #88877e;
+  --brand: #ADA5F4; --brand-fill: rgba(83,74,183,.24); --brand-edge: rgba(173,165,244,.34);
+  --ok: #52D3A4; --ok-fill: rgba(29,158,117,.17); --ok-edge: rgba(82,211,164,.32);
+  --warn: #E2AC42; --warn-fill: rgba(226,172,66,.13); --warn-edge: rgba(226,172,66,.30);
+  --shadow: 0 12px 40px rgba(0,0,0,.55); --scrim: rgba(0,0,0,.68);
+}
+
+*, *::before, *::after { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; min-height: 100vh; min-height: 100dvh;
+  font-family: var(--sans); font-size: var(--fs-base); line-height: var(--lh-body);
+  background: var(--bg); color: var(--body); hyphens: none;
+  transition: background-color .2s, color .2s;
+}
+h1, h2, h3 { margin: 0; color: var(--ink); font-weight: 600; line-height: 1.18; }
+p { margin: 0; text-wrap: pretty; }
+b { font-weight: 600; color: var(--ink); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: var(--r-1); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.lbl { font-family: var(--mono); font-size: var(--fs-label); letter-spacing: .13em; text-transform: uppercase; color: var(--muted); }
+
+/* ── header ─────────────────────────────────────────────────── */
+.hdr { border-bottom: 1px solid var(--line); background: var(--bg); }
+.hdr__in { max-width: 760px; margin: 0 auto; padding: var(--sp-2) var(--sp-3); display: flex; align-items: center; gap: var(--sp-2); }
+.mark {
+  width: 36px; height: 36px; flex: 0 0 auto; display: grid; place-items: center;
+  border-radius: var(--r-2); background: var(--brand-fill); border: 1px solid var(--brand-edge);
+  color: var(--brand); font-family: var(--mono); font-size: 15px; font-weight: 600;
+}
+.hdr__txt { flex: 1; min-width: 0; }
+.hdr__txt h1 { font-family: var(--serif); font-size: 1.1rem; }
+.hdr__txt p { font-family: var(--mono); font-size: var(--fs-label); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.icon-btn {
+  min-width: var(--tap); min-height: var(--tap); display: grid; place-items: center;
+  background: none; border: 1px solid var(--line); border-radius: 999px;
+  cursor: pointer; color: var(--muted); transition: color .15s, border-color .15s;
+}
+.icon-btn:hover { color: var(--ink); border-color: var(--brand-edge); }
+.icon-btn svg { width: 18px; height: 18px; }
+
+.scores { display: flex; gap: var(--sp-3); }
+.scores div { text-align: right; }
+.scores b { display: block; font-family: var(--mono); font-size: 1.05rem; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.3; }
+.scores span { display: block; font-family: var(--mono); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+/* ── layout ─────────────────────────────────────────────────── */
+main { max-width: 760px; margin: 0 auto; padding: var(--sp-4) var(--sp-3) var(--sp-5); }
+
+.rounds { display: flex; gap: 4px; margin-bottom: var(--sp-4); }
+.rounds i {
+  flex: 1; height: 3px; border-radius: 2px; background: var(--line);
+  transition: background-color .3s;
+}
+.rounds i.is-won { background: var(--ok); }
+.rounds i.is-lost { background: var(--warn); }
+.rounds i.is-now { background: var(--brand); }
+
+.clue {
+  padding: var(--sp-4); margin-bottom: var(--sp-4);
+  background: var(--elev); border: 1px solid var(--line); border-left: 3px solid var(--brand);
+  border-radius: 0 var(--r-2) var(--r-2) 0;
+}
+.clue .lbl { display: block; color: var(--brand); margin-bottom: 7px; }
+.clue p { font-family: var(--serif); font-size: clamp(1.1rem, 3.6vw, 1.3rem); line-height: 1.5; color: var(--ink); }
+.clue small { display: block; margin-top: var(--sp-2); font-family: var(--mono); font-size: var(--fs-label); color: var(--muted); letter-spacing: .06em; }
+
+/* ── the board ──────────────────────────────────────────────── */
+.board {
+  display: flex; flex-wrap: wrap; gap: 5px; justify-content: center;
+  padding: var(--sp-4) var(--sp-2); margin-bottom: var(--sp-4);
+  background: var(--well); border: 1px solid var(--line); border-radius: var(--r-2);
+  min-height: 92px; align-items: center;
+}
+.cell {
+  width: 36px; height: 46px; display: grid; place-items: center;
+  background: var(--elev); border: 1px solid var(--line); border-radius: var(--r-1);
+  font-family: var(--mono); font-size: 1.15rem; font-weight: 600; color: var(--ink);
+  text-transform: uppercase;
+}
+.cell.is-blank { color: transparent; }
+.cell.is-space { width: 14px; background: none; border: 0; }
+.cell.is-fixed { background: var(--well); color: var(--muted); border-style: dashed; }
+.cell.is-new { animation: pop .34s ease; border-color: var(--ok); }
+@keyframes pop { 0% { transform: scale(.7); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+@media (max-width: 599px) { .cell { width: 29px; height: 38px; font-size: 1rem; } .cell.is-space { width: 10px; } }
+
+/* ── the wheel ──────────────────────────────────────────────── */
+.stage { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-4); }
+.wheel-wrap { position: relative; width: 210px; height: 210px; }
+.wheel-svg { width: 100%; height: 100%; transition: transform 3.4s cubic-bezier(.17,.82,.3,1); }
+.pointer {
+  position: absolute; top: -3px; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0; z-index: 2;
+  border-left: 8px solid transparent; border-right: 8px solid transparent;
+  border-top: 15px solid var(--ink);
+}
+.hub {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 74px; height: 74px; border-radius: 50%; z-index: 1;
+  background: var(--elev); border: 1px solid var(--line);
+  display: grid; place-items: center; cursor: pointer;
+  font-family: var(--mono); font-size: var(--fs-label); letter-spacing: .1em;
+  color: var(--brand); text-transform: uppercase;
+  transition: border-color .15s, background-color .15s;
+}
+.hub:hover:not(:disabled) { border-color: var(--brand-edge); background: var(--brand-fill); }
+.hub:disabled { cursor: not-allowed; color: var(--muted); }
+
+.readout { font-family: var(--mono); font-size: var(--fs-small); color: var(--muted); text-align: center; min-height: 1.7em; }
+.readout b { color: var(--ink); }
+.readout.is-ok b { color: var(--ok); }
+.readout.is-warn b { color: var(--warn); }
+
+/* ── keyboard ───────────────────────────────────────────────── */
+.keys { display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; margin-bottom: var(--sp-3); }
+.key {
+  width: 38px; height: 42px; padding: 0;
+  background: var(--elev); border: 1px solid var(--line); border-radius: var(--r-1);
+  cursor: pointer; color: var(--ink);
+  font-family: var(--mono); font-size: .92rem; text-transform: uppercase;
+  transition: background-color .12s, color .12s, border-color .12s, opacity .2s;
+}
+.key:hover:not(:disabled) { background: var(--brand-fill); border-color: var(--brand-edge); color: var(--brand); }
+.key:disabled { cursor: not-allowed; opacity: .3; }
+.key.is-hit { background: var(--ok-fill); border-color: var(--ok-edge); color: var(--ok); opacity: 1; }
+.key.is-miss { background: var(--warn-fill); border-color: var(--warn-edge); color: var(--warn); opacity: .55; text-decoration: line-through; }
+@media (max-width: 599px) { .key { width: 30px; height: 38px; font-size: .82rem; } }
+
+.actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); justify-content: center; }
+.btn {
+  min-height: var(--tap); padding: 0 20px; border-radius: 999px;
+  background: none; border: 1px solid var(--line); cursor: pointer; color: var(--body);
+  font-family: var(--mono); font-size: var(--fs-small); letter-spacing: .04em;
+  transition: background-color .12s, color .12s, border-color .12s;
+}
+.btn:hover:not(:disabled) { color: var(--ink); border-color: var(--brand-edge); background: var(--elev); }
+.btn:disabled { opacity: .35; cursor: not-allowed; }
+.btn--go { background: var(--brand-fill); border-color: var(--brand-edge); color: var(--brand); }
+
+/* ── modal ──────────────────────────────────────────────────── */
+.modal-root { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: var(--sp-3); }
+.modal-root[hidden] { display: none; }
+.modal__scrim { position: absolute; inset: 0; width: 100%; background: var(--scrim); border: 0; }
+.modal {
+  position: relative; width: 100%; max-width: 30rem; max-height: 86dvh; overflow-y: auto;
+  padding: var(--sp-5) var(--sp-4) var(--sp-4);
+  background: var(--elev); border: 1px solid var(--line); border-radius: var(--r-3);
+  box-shadow: var(--shadow); text-align: center;
+}
+.modal h2 { font-family: var(--serif); font-size: 1.5rem; }
+.modal__word { font-family: var(--mono); font-size: 1.1rem; color: var(--brand); margin-top: 6px; text-transform: uppercase; letter-spacing: .06em; }
+.modal__def { margin-top: var(--sp-3); text-align: left; font-size: .9375rem; }
+.modal__trap {
+  margin-top: var(--sp-3); padding: 11px var(--sp-3); text-align: left;
+  background: var(--warn-fill); border: 1px solid var(--warn-edge); border-radius: var(--r-2);
+}
+.modal__trap .lbl { display: block; color: var(--warn); margin-bottom: 4px; }
+.modal__trap p { font-size: .9375rem; }
+.modal .actions { margin-top: var(--sp-4); }
+.tally { display: flex; justify-content: center; gap: var(--sp-4); margin-top: var(--sp-4); padding-top: var(--sp-3); border-top: 1px solid var(--line); }
+.tally div b { display: block; font-family: var(--mono); font-size: 1.3rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+.tally div span { font-family: var(--mono); font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+
+.ftr { max-width: 760px; margin: 0 auto; padding: 0 var(--sp-3) var(--sp-5); text-align: center; font-family: var(--mono); font-size: var(--fs-label); color: var(--muted); line-height: 2; }
+.ftr a { color: var(--brand); }
+
+@media (prefers-reduced-motion: reduce) {
+  .wheel-svg { transition-duration: .3s !important; }
+  .cell.is-new { animation: none; }
+  *, *::before, *::after { transition-duration: .01ms !important; }
+}
+
+/* ── unified nav ─────────────────────────────────────────── */
+.nav{position:sticky;top:0;z-index:40;background:var(--bg,#eeece6);border-bottom:1px solid var(--line,rgba(26,26,24,.14))}
+.nav__in{max-width:1100px;margin:0 auto;padding:8px 16px;display:flex;align-items:center;gap:8px}
+.nav__brand{display:flex;align-items:center;gap:10px;margin-right:auto;min-width:0;text-decoration:none;color:inherit}
+.nav__mark{width:30px;height:30px;flex:0 0 auto;display:grid;place-items:center;border-radius:7px;background:var(--brand-fill,rgba(83,74,183,.07));border:1px solid var(--brand-edge,rgba(83,74,183,.26));color:var(--brand,#4A42A8);font-family:var(--mono,monospace);font-size:10px;font-weight:600}
+.nav__title{font-family:var(--serif,Georgia,serif);font-size:.95rem;color:var(--ink,#17171a);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nav__links{display:flex;gap:2px;flex-wrap:wrap;justify-content:flex-end}
+.nav__link{padding:6px 10px;border-radius:999px;font-family:var(--mono,monospace);font-size:11px;letter-spacing:.04em;color:var(--muted,#6c6c64);text-decoration:none;border:1px solid transparent;transition:color .15s,background .15s}
+.nav__link:hover{color:var(--ink,#17171a);background:var(--well,#f6f5f1)}
+.nav__link.is-active{color:var(--brand,#4A42A8);background:var(--brand-fill,rgba(83,74,183,.07));border-color:var(--brand-edge,rgba(83,74,183,.26))}
+@media(max-width:520px){.nav__title{display:none}.nav__link{padding:5px 8px;font-size:10px}}
+</style>
+</head>
+
+<body>
+<nav class="nav" aria-label="Main">
+  <div class="nav__in">
+    <a class="nav__brand" href="../">
+      <span class="nav__mark">AI</span>
+      <span class="nav__title">Field Guide</span>
+    </a>
+    <div class="nav__links">
+      <a class="nav__link" href="../">Hub</a>
+      <a class="nav__link" href="../opener/">Opener</a>
+      <a class="nav__link" href="../glossary/">Glossary</a>
+      <a class="nav__link is-active" href="../game/">Game</a>
+      <a class="nav__link" href="../neural/">Neural</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hdr">
+  <div class="hdr__in">
+    <div class="mark" aria-hidden="true">Ч</div>
+    <div class="hdr__txt">
+      <h1>Поле&nbsp;Чудес</h1>
+      <p>ai glossary edition &middot; 6 rounds</p>
+    </div>
+    <div class="scores">
+      <div><b id="score">0</b><span>score</span></div>
+      <div><b id="round">1/6</b><span>round</span></div>
+    </div>
+    <button class="icon-btn" id="theme-btn" aria-label="Colour theme">
+      <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <div class="rounds" id="rounds" aria-hidden="true"></div>
+
+  <div class="clue">
+    <span class="lbl">The definition</span>
+    <p id="clue">Press SPIN to begin.</p>
+    <small id="clue-meta"></small>
+  </div>
+
+  <div class="board" id="board" role="img" aria-live="polite" aria-label="The word, so far"></div>
+
+  <div class="stage">
+    <div class="wheel-wrap">
+      <div class="pointer" aria-hidden="true"></div>
+      <svg class="wheel-svg" id="wheel" viewBox="0 0 200 200" aria-hidden="true"></svg>
+      <button class="hub" id="hub">Spin</button>
+    </div>
+    <p class="readout" id="readout">Spin the wheel to set what the next letter is worth.</p>
+  </div>
+
+  <div class="keys" id="keys" role="group" aria-label="Guess a letter"></div>
+
+  <div class="actions">
+    <button class="btn btn--go" id="solve">Solve the word</button>
+    <button class="btn" id="skip">Give up on this one</button>
+  </div>
+</main>
+
+<p class="ftr">
+  Words and definitions come from the <a href="../glossary/">0&ndash;100 AI Era Glossary</a>.<br />
+  Type a letter, or press <b>Enter</b> to spin.
+</p>
+
+<div class="modal-root" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <button class="modal__scrim" id="modal-scrim" tabindex="-1" aria-label="Close"></button>
+  <div class="modal">
+    <h2 id="modal-title"></h2>
+    <p class="modal__word" id="modal-word"></p>
+    <p class="modal__def" id="modal-def"></p>
+    <div class="modal__trap" id="modal-trap"></div>
+    <div class="tally" id="modal-tally"></div>
+    <div class="actions" id="modal-actions"></div>
+  </div>
+</div>
+
+<script>
+/* THE WORDS - twelve drawn from the glossary; six dealt per game */
+const WORDS = [
+  { word: 'HALLUCINATION', at: 22,
+    def: 'The model states something false with complete confidence.',
+    trap: 'People expect wrong answers to look wrong. These do not. Fluency is not evidence.' },
+  { word: 'CONTEXT WINDOW', at: 12,
+    def: 'How much the model can hold in mind at one time.',
+    trap: 'It did not "forget". The text left the window, so it stopped existing as far as the model is concerned.' },
+  { word: 'TOKEN', at: 10,
+    def: 'A piece of a word. The unit the model reads and writes in.',
+    trap: 'Tokens are why non-English text costs more, and why the model miscounts letters. It never saw the letters.' },
+  { word: 'PROMPT INJECTION', at: 32,
+    def: 'Instructions hidden inside content that the model reads.',
+    trap: 'This is the security problem of the agent era, and it has no clean fix.' },
+  { word: 'GROUNDING', at: 39,
+    def: 'Tying an answer to a source you can go and check.',
+    trap: 'It reduces invention. It does not remove it — a model can still misread a document it was handed.' },
+  { word: 'GUARDRAIL', at: 88,
+    def: 'A check around the model, written in code rather than in the prompt.',
+    trap: 'A rule in the system prompt is a request. A rule in code is a guardrail. Confusing the two is the common serious mistake.' },
+  { word: 'SYCOPHANCY', at: 30,
+    def: 'The model agrees with you because you sound sure.',
+    trap: '"I asked it and it agreed" is worth nothing. It would have agreed either way.' },
+  { word: 'SHADOW AI', at: 94,
+    def: 'Staff using AI tools nobody approved, on data nobody cleared.',
+    trap: 'Banning it does not stop it. It only stops you seeing it.' },
+  { word: 'KNOWLEDGE CUTOFF', at: 16,
+    def: 'The date the training text stops.',
+    trap: 'A model answers confidently about later events, because it does not experience the gap as a gap.' },
+  { word: 'FINE TUNING', at: 56,
+    def: 'Further training on your own examples to change how a model behaves.',
+    trap: 'It teaches behaviour, not facts. "The model should know our documents" is almost always a retrieval problem.' },
+  { word: 'HUMAN IN THE LOOP', at: 72,
+    def: 'A person must approve before something irreversible happens.',
+    trap: 'Approval fatigue defeats it. Ask forty times an hour and people click yes without reading.' },
+  { word: 'AUTONOMY LEVEL', at: 74,
+    def: 'How many steps the system takes before it checks with a person.',
+    trap: 'It is a decision, not a property. If nobody chose it deliberately, somebody chose it by accident.' },
+];
+
+const SECTORS = [
+  { label: '200',  value: 200,  kind: 'points' },
+  { label: 'x2',   value: 0,    kind: 'double' },
+  { label: '400',  value: 400,  kind: 'points' },
+  { label: 'ZERO', value: 0,    kind: 'zero' },
+  { label: '300',  value: 300,  kind: 'points' },
+  { label: 'FREE', value: 0,    kind: 'free' },
+  { label: '500',  value: 500,  kind: 'points' },
+  { label: '250',  value: 250,  kind: 'points' },
+  { label: '600',  value: 600,  kind: 'points' },
+  { label: '350',  value: 350,  kind: 'points' },
+];
+
+const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+const ROUNDS = 6;
+const SOLVE_BONUS = 1000;
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&', '<': '<', '>': '>' }[c]));
+
+const game = {
+  deck: [], index: 0, score: 0, results: [], current: null,
+  found: new Set(), missed: new Set(), multiplier: 1,
+  pending: null, spinning: false, over: false,
+};
+
+const shuffle = (a) => {
+  const out = a.slice();
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+};
+
+const ICONS = {
+  auto:  '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/><path d="M12 8a4 4 0 0 0 0 8" fill="currentColor" stroke="none"/>',
+  light: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  dark:  '<path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>',
+};
+const ORDER = ['auto', 'light', 'dark'];
+const systemDark = window.matchMedia('(prefers-color-scheme: dark)');
+const store = {
+  get() { try { return localStorage.getItem('ai-glossary-theme'); } catch { return null; } },
+  set(v) { try { localStorage.setItem('ai-glossary-theme', v); } catch {} },
+};
+let themeMode = ORDER.includes(store.get()) ? store.get() : 'auto';
+
+const applyTheme = () => {
+  const resolved = themeMode === 'auto' ? (systemDark.matches ? 'dark' : 'light') : themeMode;
+  document.documentElement.dataset.theme = resolved;
+  $('theme-icon').innerHTML = ICONS[themeMode];
+  $('theme-btn').setAttribute('aria-label', `Colour theme: ${themeMode}. Press to change.`);
+  $('meta-theme').content = resolved === 'dark' ? '#1c1c1a' : '#eeece6';
+  buildWheel();
+};
+$('theme-btn').addEventListener('click', () => {
+  themeMode = ORDER[(ORDER.indexOf(themeMode) + 1) % ORDER.length];
+  store.set(themeMode);
+  applyTheme();
+});
+if (systemDark.addEventListener) systemDark.addEventListener('change', () => themeMode === 'auto' && applyTheme());
+
+const css = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+const buildWheel = () => {
+  const svg = $('wheel');
+  const cx = 100, cy = 100, r = 94;
+  const n = SECTORS.length;
+  const slice = 360 / n;
+  const ink = css('--ink'), muted = css('--muted'), line = css('--line');
+  const brand = css('--brand'), warn = css('--warn'), ok = css('--ok'), elev = css('--elev'), well = css('--well');
+  const tone = (s) => s.kind === 'zero' ? warn : s.kind === 'free' ? ok : s.kind === 'double' ? brand : muted;
+  let out = `<circle cx="${cx}" cy="${cy}" r="${r + 3}" fill="${well}" stroke="${line}"/>`;
+  SECTORS.forEach((s, i) => {
+    const a0 = (i * slice - 90 - slice / 2) * Math.PI / 180;
+    const a1 = ((i + 1) * slice - 90 - slice / 2) * Math.PI / 180;
+    const x0 = cx + r * Math.cos(a0), y0 = cy + r * Math.sin(a0);
+    const x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+    const fill = i % 2 ? elev : well;
+    out += `<path d="M${cx} ${cy} L${x0.toFixed(2)} ${y0.toFixed(2)} A${r} ${r} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z" fill="${fill}" stroke="${line}" stroke-width="1"/>`;
+    const am = (a0 + a1) / 2;
+    const lx = cx + r * 0.68 * Math.cos(am), ly = cy + r * 0.68 * Math.sin(am);
+    const rot = (i * slice) % 360;
+    out += `<text x="${lx.toFixed(2)}" y="${ly.toFixed(2)}" fill="${tone(s)}" font-family="${css('--mono') || 'monospace'}" font-size="12" font-weight="600" text-anchor="middle" dominant-baseline="middle" transform="rotate(${rot} ${lx.toFixed(2)} ${ly.toFixed(2)})">${s.label}</text>`;
+  });
+  out += `<circle cx="${cx}" cy="${cy}" r="${r + 3}" fill="none" stroke="${ink}" stroke-opacity=".18"/>`;
+  svg.innerHTML = out;
+};
+
+const isLetter = (ch) => /[A-Z]/.test(ch);
+
+const buildKeys = () => {
+  $('keys').innerHTML = ALPHABET.map((ch) => `<button class="key" data-key="${ch}" aria-label="Guess ${ch}">${ch}</button>`).join('');
+  $('keys').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-key]');
+    if (btn && !btn.disabled) guess(btn.dataset.key);
+  });
+};
+
+const buildRounds = () => {
+  $('rounds').innerHTML = Array.from({ length: ROUNDS }, () => '<i></i>').join('');
+};
+
+const syncRounds = () => {
+  $('rounds').querySelectorAll('i').forEach((el, i) => {
+    el.className = game.results[i] === 'won' ? 'is-won' : game.results[i] === 'lost' ? 'is-lost' : i === game.index && !game.over ? 'is-now' : '';
+  });
+};
+
+const renderBoard = (newLetter) => {
+  const w = game.current ? game.current.word : '';
+  $('board').innerHTML = w.split('').map((ch) => {
+    if (ch === ' ') return '<span class="cell is-space"></span>';
+    if (!isLetter(ch)) return `<span class="cell is-fixed">${esc(ch)}</span>`;
+    const shown = game.found.has(ch);
+    const fresh = shown && ch === newLetter ? ' is-new' : '';
+    return `<span class="cell${shown ? fresh : ' is-blank'}">${shown ? esc(ch) : '·'}</span>`;
+  }).join('');
+};
+
+const syncKeys = () => {
+  const ready = Boolean(game.pending) && !game.over;
+  $('keys').querySelectorAll('[data-key]').forEach((btn) => {
+    const ch = btn.dataset.key;
+    const hit = game.found.has(ch);
+    const miss = game.missed.has(ch);
+    btn.className = 'key' + (hit ? ' is-hit' : miss ? ' is-miss' : '');
+    btn.disabled = hit || miss || !ready;
+  });
+};
+
+const say = (html, tone) => {
+  $('readout').className = 'readout' + (tone ? ` is-${tone}` : '');
+  $('readout').innerHTML = html;
+};
+
+const syncHead = () => {
+  $('score').textContent = game.score.toLocaleString('en-US');
+  $('round').textContent = game.over ? `${ROUNDS}/${ROUNDS}` : `${game.index + 1}/${ROUNDS}`;
+};
+
+const syncControls = () => {
+  const waiting = !game.pending && !game.spinning && !game.over;
+  $('hub').disabled = !waiting;
+  $('hub').textContent = game.spinning ? '…' : 'Spin';
+  $('solve').disabled = game.over || !game.current;
+  $('skip').disabled = game.over || !game.current;
+};
+
+const startGame = () => {
+  game.deck = shuffle(WORDS).slice(0, ROUNDS);
+  game.index = 0; game.score = 0; game.results = []; game.over = false;
+  startRound();
+};
+
+const startRound = () => {
+  game.current = game.deck[game.index];
+  game.found = new Set(); game.missed = new Set();
+  game.multiplier = 1; game.pending = null;
+  $('clue').textContent = game.current.def;
+  $('clue-meta').textContent = `position ${String(game.current.at).padStart(2, '0')} of 100 · ${game.current.word.replace(/[^A-Z]/g, '').length} letters`;
+  renderBoard(); syncKeys(); syncHead(); syncRounds(); syncControls();
+  say('Spin the wheel to set what the next letter is worth.');
+};
+
+let wheelAngle = 0;
+
+const spin = () => {
+  if (game.spinning || game.pending || game.over) return;
+  game.spinning = true; syncControls();
+  const pick = Math.floor(Math.random() * SECTORS.length);
+  const slice = 360 / SECTORS.length;
+  const turns = 4 + Math.floor(Math.random() * 3);
+  wheelAngle += turns * 360 + ((360 - pick * slice) - (wheelAngle % 360) + 360) % 360;
+  $('wheel').style.transform = `rotate(${wheelAngle}deg)`;
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  setTimeout(() => { game.spinning = false; land(SECTORS[pick]); }, reduced ? 320 : 3450);
+};
+
+const land = (sector) => {
+  if (sector.kind === 'zero') {
+    game.pending = null; game.multiplier = 1;
+    say('<b>ZERO.</b> That spin is worth nothing. Spin again.', 'warn');
+    syncControls(); syncKeys(); return;
+  }
+  if (sector.kind === 'double') {
+    game.multiplier *= 2; game.pending = null;
+    say(`<b>DOUBLE.</b> Your next win counts ${game.multiplier}&times;. Spin again.`, 'ok');
+    syncControls(); syncKeys(); return;
+  }
+  if (sector.kind === 'free') {
+    const hidden = [...new Set(game.current.word.split('').filter((c) => isLetter(c) && !game.found.has(c)))];
+    if (!hidden.length) { finishRound(true); return; }
+    const gift = hidden[Math.floor(Math.random() * hidden.length)];
+    game.found.add(gift); renderBoard(gift); syncKeys();
+    say(`<b>FREE LETTER.</b> ${gift} was hiding in there. No points for it. Spin again.`, 'ok');
+    if (isSolved()) finishRound(true); else syncControls(); return;
+  }
+  game.pending = sector;
+  say(`<b>${sector.value}</b> per letter${game.multiplier > 1 ? ` &times;${game.multiplier}` : ''}. Now pick a letter.`);
+  syncControls(); syncKeys();
+};
+
+const isSolved = () => game.current.word.split('').every((ch) => !isLetter(ch) || game.found.has(ch));
+
+const guess = (ch) => {
+  if (!game.pending || game.over) return;
+  if (game.found.has(ch) || game.missed.has(ch)) return;
+  const hits = game.current.word.split('').filter((c) => c === ch).length;
+  const value = game.pending.value; game.pending = null;
+  if (hits) {
+    game.found.add(ch);
+    const won = hits * value * game.multiplier;
+    game.score += won; game.multiplier = 1;
+    renderBoard(ch);
+    say(`<b>${ch}</b> &times;${hits} &rarr; <b>+${won.toLocaleString('en-US')}</b>. Spin again.`, 'ok');
+    syncHead();
+    if (isSolved()) { finishRound(true); return; }
+  } else {
+    game.missed.add(ch);
+    say(`No <b>${ch}</b> in this one.`, 'warn');
+  }
+  syncKeys(); syncControls();
+};
+
+const finishRound = (won) => {
+  game.results[game.index] = won ? 'won' : 'lost';
+  game.current.word.split('').forEach((c) => isLetter(c) && game.found.add(c));
+  renderBoard(); syncRounds(); syncKeys();
+  const last = game.index >= ROUNDS - 1;
+  showCard(won, last);
+};
+
+const nextRound = () => {
+  closeModal();
+  if (game.index >= ROUNDS - 1) { game.over = true; syncHead(); syncControls(); showFinal(); return; }
+  game.index += 1; startRound();
+};
+
+let lastFocus = null;
+const openModal = () => { lastFocus = document.activeElement; $('modal').hidden = false; const first = $('modal-actions').querySelector('button'); if (first) first.focus(); };
+const closeModal = () => { $('modal').hidden = true; if (lastFocus && lastFocus.focus) lastFocus.focus(); };
+
+const showCard = (won, last) => {
+  const w = game.current;
+  $('modal-title').textContent = won ? 'Solved.' : 'Not this time.';
+  $('modal-word').textContent = w.word;
+  $('modal-def').textContent = w.def;
+  $('modal-trap').innerHTML = `<span class="lbl">Where people go wrong</span><p>${esc(w.trap)}</p>`;
+  $('modal-tally').innerHTML = `<div><b>${game.score.toLocaleString('en-US')}</b><span>score</span></div><div><b>${game.results.filter((r) => r === 'won').length}/${ROUNDS}</b><span>solved</span></div>`;
+  $('modal-actions').innerHTML = `<button class="btn btn--go" id="m-next">${last ? 'See the result' : 'Next word'}</button>`;
+  $('m-next').addEventListener('click', nextRound);
+  openModal();
+};
+
+const showFinal = () => {
+  const solved = game.results.filter((r) => r === 'won').length;
+  const verdict = solved === ROUNDS ? 'All six. You know these words.' : solved >= 4 ? 'Solid. A few worth re-reading.' : solved >= 2 ? 'A start. The glossary is next door.' : 'Worth reading the first twenty before playing again.';
+  $('modal-title').textContent = 'End of the game';
+  $('modal-word').textContent = `${solved} of ${ROUNDS} solved`;
+  $('modal-def').textContent = verdict;
+  $('modal-trap').innerHTML = `<span class="lbl">Worth knowing</span><p>Guessing a word is not the same as being able to use it. The glossary gives every one of these fifty words a definition, a reason it matters, and the specific way people get it wrong.</p>`;
+  $('modal-tally').innerHTML = `<div><b>${game.score.toLocaleString('en-US')}</b><span>final score</span></div><div><b>${solved}/${ROUNDS}</b><span>solved</span></div>`;
+  $('modal-actions').innerHTML = `<button class="btn btn--go" id="m-again">Play again</button><a class="btn" href="../glossary/">Open the glossary</a>`;
+  $('m-again').addEventListener('click', () => { closeModal(); startGame(); });
+  openModal();
+};
+
+$('solve').addEventListener('click', () => {
+  if (game.over || !game.current) return;
+  const answer = (prompt('Type the whole word:') || '').trim().toUpperCase();
+  if (!answer) return;
+  const target = game.current.word.replace(/\s+/g, ' ');
+  if (answer.replace(/\s+/g, ' ') === target) { game.score += SOLVE_BONUS; syncHead(); finishRound(true); }
+  else say(`<b>${esc(answer)}</b> is not it. Keep going.`, 'warn');
+});
+
+$('skip').addEventListener('click', () => { if (game.over || !game.current) return; finishRound(false); });
+$('hub').addEventListener('click', spin);
+$('modal-scrim').addEventListener('click', () => {});
+
+document.addEventListener('keydown', (e) => {
+  if (!$('modal').hidden) { if (e.key === 'Enter') { const b = $('modal-actions').querySelector('button'); if (b) b.click(); } return; }
+  if (e.target.matches('input, textarea')) return;
+  const ch = e.key.toUpperCase();
+  if (ALPHABET.includes(ch) && ch.length === 1) {
+    const btn = $('keys').querySelector(`[data-key="${ch}"]`);
+    if (btn && !btn.disabled) { e.preventDefault(); guess(ch); }
+  } else if (e.key === 'Enter' && !$('hub').disabled) { e.preventDefault(); spin(); }
+});
+
+applyTheme();
+buildKeys();
+buildRounds();
+startGame();
+</script>
+</body>
+</html>
