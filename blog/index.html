@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>AI Field Guide v3.2 — senior devs + QA</title>
+<meta name="description" content="From Enigma to local LLMs. Six-tool arsenal, prompt patterns, Ollama deploy, next-wave map. August 2026 field guide for senior devs and QA.">
+<meta property="og:title" content="AI Field Guide v3.2">
+<meta property="og:description" content="Senior-dev + QA field guide. Origin, arsenal, craft, local AI, next wave.">
+<link rel="canonical" href="https://artsrun.github.io/ai-field-guide/blog/">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f5f5f2;
+    --color-background-tertiary: #eeece6;
+    --color-text-primary: #1a1a18;
+    --color-text-secondary: #5a5a56;
+    --color-text-tertiary: #9a9a94;
+    --color-border-tertiary: rgba(0,0,0,0.12);
+    --color-border-secondary: rgba(0,0,0,0.22);
+    --color-border-primary: rgba(0,0,0,0.35);
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --font-mono: 'SFMono-Regular', 'Consolas', 'Liberation Mono', monospace;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --color-background-primary: #1e1e1c;
+      --color-background-secondary: #28281f;
+      --color-background-tertiary: #2e2e28;
+      --color-text-primary: #e8e8e0;
+      --color-text-secondary: #a0a09a;
+      --color-text-tertiary: #666660;
+      --color-border-tertiary: rgba(255,255,255,0.10);
+      --color-border-secondary: rgba(255,255,255,0.18);
+      --color-border-primary: rgba(255,255,255,0.28);
+    }
+    .bp { background: #2c2a4a; color: #c8c4f5; }
+    .bt { background: #16352c; color: #7fd4b8; }
+    .bc { background: #3a241c; color: #e0a090; }
+    .ba { background: #3a2c14; color: #e0b86a; }
+    .bb { background: #1a2e44; color: #8bb8e8; }
+    .bg { background: #243318; color: #a0c86a; }
+    .bk { background: #2a2a26; color: #b0b0a8; }
+    .bpk { background: #3a2030; color: #e090b0; }
+    .br { background: #3a1c1c; color: #e09090; }
+    .fh { background: #2c2a4a; border-color: #6a64b8; color: #c8c4f5; }
+    .fo { background: #16352c; border-color: #3a8a6e; color: #7fd4b8; }
+    .fw { background: #3a2c14; border-color: #b07a20; color: #e0b86a; }
+    .wt { background: #16352c; color: #7fd4b8; }
+    .wa { background: #3a2c14; color: #e0b86a; }
+    .wp { background: #2c2a4a; color: #c8c4f5; }
+    .wb2 { background: #1a2e44; color: #8bb8e8; }
+    .wg { background: #243318; color: #a0c86a; }
+  }
+  body {
+    font-family: var(--font-sans);
+    background: var(--color-background-tertiary);
+    color: var(--color-text-primary);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+  .wrapper {
+    max-width: 980px; margin: 0 auto;
+    background: var(--color-background-primary);
+    border-radius: var(--border-radius-lg);
+    border: 0.5px solid var(--color-border-tertiary);
+    padding: 1.5rem;
+  }
+  .hub-bar { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:12px; font-size:12px; }
+  .hub-bar a { color: var(--color-text-secondary); text-decoration:none; }
+  .hub-bar a:hover { color: var(--color-text-primary); }
+  .site-header { margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 0.5px solid var(--color-border-tertiary); display:flex; align-items:baseline; gap:1rem; flex-wrap:wrap; }
+  .site-header h1 { font-size: 18px; font-weight: 500; }
+  .site-header span { font-size: 12px; color: var(--color-text-tertiary); font-family: var(--font-mono); }
+  .nav-strip { display:flex; gap:3px; flex-wrap:wrap; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:0.5px solid var(--color-border-tertiary); }
+  .nav-btn { display:flex; align-items:center; gap:6px; padding:6px 12px; border:0.5px solid var(--color-border-secondary); border-radius:var(--border-radius-md); cursor:pointer; background:transparent; font-size:12px; font-weight:500; color:var(--color-text-secondary); transition:all .15s; font-family:var(--font-sans); }
+  .nav-btn:hover { background: var(--color-background-secondary); }
+  .nav-btn.active { background: var(--color-text-primary); color: var(--color-background-primary); border-color: var(--color-text-primary); }
+  .nav-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+  .chapter { display:none; } .chapter.active { display:block; }
+  .chapter-hero { margin-bottom:1.5rem; padding:1.25rem; background:var(--color-background-secondary); border-radius:var(--border-radius-lg); border-left:3px solid var(--color-border-tertiary); }
+  .ch-eyebrow { font-size:11px; color:var(--color-text-tertiary); letter-spacing:.1em; text-transform:uppercase; font-weight:500; margin-bottom:6px; }
+  .ch-title { font-size:22px; font-weight:500; margin-bottom:6px; }
+  .ch-sub { font-size:13px; color:var(--color-text-secondary); line-height:1.6; }
+  .sub-tabs { display:flex; gap:3px; flex-wrap:wrap; margin-bottom:1.25rem; }
+  .stab { font-size:12px; padding:4px 10px; border:0.5px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); cursor:pointer; background:transparent; color:var(--color-text-tertiary); transition:all .12s; font-family:var(--font-sans); }
+  .stab:hover { border-color:var(--color-border-secondary); color:var(--color-text-secondary); }
+  .stab.on { background:var(--color-background-secondary); border-color:var(--color-border-secondary); color:var(--color-text-primary); }
+  .subpage { display:none; } .subpage.active { display:block; }
+  .sl { font-size:11px; color:var(--color-text-tertiary); letter-spacing:.1em; text-transform:uppercase; font-weight:500; margin-bottom:10px; }
+  .card { background:var(--color-background-primary); border:0.5px solid var(--color-border-tertiary); border-radius:var(--border-radius-lg); padding:1rem; }
+  .card.hi { border-width:2px; }
+  .badge { display:inline-block; font-size:11px; font-weight:500; padding:2px 8px; border-radius:var(--border-radius-md); margin-bottom:6px; }
+  .bp { background:#EEEDFE; color:#3C3489; } .bt { background:#E1F5EE; color:#085041; }
+  .bc { background:#FAECE7; color:#712B13; } .ba { background:#FAEEDA; color:#633806; }
+  .bb { background:#E6F1FB; color:#0C447C; } .bg { background:#EAF3DE; color:#27500A; }
+  .bk { background:#F1EFE8; color:#444441; } .bpk { background:#FBEAF0; color:#72243E; }
+  .br { background:#FCEBEB; color:#791F1F; }
+  .ai-name { font-size:14px; font-weight:500; margin-bottom:3px; }
+  .ai-tag { font-size:12px; color:var(--color-text-secondary); margin-bottom:8px; line-height:1.5; }
+  .ul { list-style:none; }
+  .ul li { font-size:12px; color:var(--color-text-secondary); padding:3px 0; border-bottom:0.5px solid var(--color-border-tertiary); display:flex; gap:7px; }
+  .ul li:last-child { border-bottom:none; }
+  .ck { color:#1D9E75; font-size:10px; flex-shrink:0; } .cx { color:#D85A30; font-size:10px; flex-shrink:0; }
+  .dm { display:flex; gap:3px; margin-top:6px; }
+  .d { width:7px; height:7px; border-radius:50%; background:var(--color-border-secondary); }
+  .dp { background:#7F77DD; } .dt { background:#1D9E75; } .dc { background:#D85A30; }
+  .da { background:#BA7517; } .db { background:#378ADD; } .dpk { background:#D4537E; } .dgr { background:#639922; }
+  .ml { font-size:11px; color:var(--color-text-tertiary); margin-top:3px; }
+  .tl { position:relative; padding-left:18px; }
+  .tl::before { content:''; position:absolute; left:5px; top:0; bottom:0; width:1px; background:var(--color-border-tertiary); }
+  .era { margin-bottom:1.25rem; }
+  .era-h { display:flex; align-items:center; gap:8px; margin-bottom:6px; position:relative; }
+  .era-dot { width:11px; height:11px; border-radius:50%; position:absolute; left:-16px; border:2px solid var(--color-background-primary); }
+  .era-yr { font-family:var(--font-mono); font-size:11px; color:var(--color-text-tertiary); font-weight:500; white-space:nowrap; }
+  .era-nm { font-size:13px; font-weight:500; }
+  .era-b { background:var(--color-background-secondary); border-radius:var(--border-radius-md); padding:9px 11px; }
+  .era-b p { font-size:12px; color:var(--color-text-secondary); line-height:1.65; }
+  .era-b strong { font-weight:500; color:var(--color-text-primary); }
+  .era-ins { margin-top:5px; font-size:11px; color:var(--color-text-tertiary); border-left:2px solid var(--color-border-secondary); padding-left:8px; }
+  .pc { background:var(--color-background-secondary); border-radius:var(--border-radius-md); padding:9px 11px; margin-bottom:7px; }
+  .pl { font-size:11px; color:var(--color-text-tertiary); margin-bottom:3px; font-weight:500; letter-spacing:.07em; text-transform:uppercase; }
+  .pt { font-size:12px; color:var(--color-text-primary); line-height:1.6; font-family:var(--font-mono); }
+  .pt em { color:#534AB7; font-style:normal; }
+  .cpb { font-size:11px; padding:3px 8px; border:0.5px solid var(--color-border-secondary); border-radius:var(--border-radius-md); background:transparent; color:var(--color-text-secondary); cursor:pointer; margin-top:5px; font-family:var(--font-sans); }
+  .cpb:hover { background:var(--color-background-secondary); }
+  .fr { display:flex; gap:7px; align-items:center; margin-bottom:7px; flex-wrap:wrap; }
+  .fn { font-size:12px; padding:5px 9px; border-radius:var(--border-radius-md); border:0.5px solid var(--color-border-secondary); color:var(--color-text-primary); background:var(--color-background-primary); white-space:nowrap; }
+  .fh { background:#EEEDFE; border-color:#AFA9EC; color:#3C3489; }
+  .fo { background:#E1F5EE; border-color:#5DCAA5; color:#085041; }
+  .fw { background:#FAEEDA; border-color:#EF9F27; color:#633806; }
+  .fa { color:var(--color-text-tertiary); font-size:13px; }
+  .sc-g { display:grid; grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)); gap:7px; }
+  .sc { background:var(--color-background-primary); border:0.5px solid var(--color-border-tertiary); border-radius:var(--border-radius-md); padding:9px 11px; }
+  .sc-c { font-family:var(--font-mono); font-size:14px; font-weight:500; color:#534AB7; margin-bottom:3px; }
+  .sc-d { font-size:12px; color:var(--color-text-secondary); line-height:1.4; }
+  .rl { list-style:none; }
+  .rl li { font-size:12px; color:var(--color-text-secondary); padding:7px 0; border-bottom:0.5px solid var(--color-border-tertiary); display:flex; gap:9px; }
+  .rl li:last-child { border-bottom:none; }
+  .rn { font-weight:500; color:var(--color-text-primary); flex-shrink:0; font-family:var(--font-mono); font-size:11px; }
+  .mt { width:100%; border-collapse:collapse; font-size:12px; }
+  .mt th { font-size:11px; font-weight:500; color:var(--color-text-tertiary); text-transform:uppercase; letter-spacing:.07em; padding:5px 7px; border-bottom:0.5px solid var(--color-border-secondary); text-align:left; }
+  .mt td { padding:7px 7px; border-bottom:0.5px solid var(--color-border-tertiary); color:var(--color-text-secondary); vertical-align:top; }
+  .mt tr:last-child td { border-bottom:none; }
+  .mt tr:hover td { background:var(--color-background-secondary); }
+  .mn { font-weight:500; color:var(--color-text-primary); }
+  .wb { display:inline-block; font-size:10px; padding:1px 6px; border-radius:10px; font-weight:500; }
+  .wt { background:#E1F5EE; color:#085041; } .wa { background:#FAEEDA; color:#633806; }
+  .wp { background:#EEEDFE; color:#3C3489; } .wb2 { background:#E6F1FB; color:#0C447C; } .wg { background:#EAF3DE; color:#27500A; }
+  .ib { background:var(--color-background-secondary); border-radius:var(--border-radius-md); padding:9px 13px; font-family:var(--font-mono); font-size:12px; color:var(--color-text-primary); margin:7px 0; overflow-x:auto; }
+  .ic { color:var(--color-text-tertiary); }
+  .rc { border-left:3px solid #534AB7; padding:9px 11px; background:var(--color-background-secondary); margin-bottom:7px; }
+  .rc-t { font-size:13px; font-weight:500; margin-bottom:2px; }
+  .rc-b { font-size:12px; color:var(--color-text-secondary); line-height:1.6; }
+  .freshness { font-size:11px; color:var(--color-text-tertiary); background:var(--color-background-secondary); border-radius:var(--border-radius-md); padding:7px 11px; margin-bottom:1rem; line-height:1.5; }
+  .freshness strong { color:var(--color-text-primary); font-weight:500; }
+  .future-row { display:flex; gap:8px; margin-bottom:8px; align-items:flex-start; }
+  .future-yr { font-family:var(--font-mono); font-size:11px; color:var(--color-text-tertiary); width:52px; flex-shrink:0; padding-top:3px; }
+  .future-card { flex:1; background:var(--color-background-secondary); border-radius:var(--border-radius-md); padding:8px 11px; }
+  .future-t { font-size:13px; font-weight:500; margin-bottom:2px; }
+  .future-d { font-size:12px; color:var(--color-text-secondary); line-height:1.5; }
+  .future-tag { display:inline-block; font-size:10px; padding:1px 6px; border-radius:10px; margin-bottom:4px; font-weight:500; }
+  .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem; }
+  .cards-6 { display:grid; grid-template-columns:repeat(auto-fit,minmax(148px,1fr)); gap:9px; }
+  .footer { margin-top:2rem; padding-top:1rem; border-top:0.5px solid var(--color-border-tertiary); font-size:11px; color:var(--color-text-tertiary); display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px; }
+  :focus-visible { outline:2px solid #534AB7; outline-offset:2px; }
+  @media (max-width:640px) {
+    body { padding:0.75rem 0.5rem; }
+    .wrapper { padding:1rem; }
+    .grid-2 { grid-template-columns:1fr; }
+    .future-yr { width:44px; }
+    .ch-title { font-size:18px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrapper">
+<div class="hub-bar"><a href="../">← Field Guide hub</a><span style="font-family:var(--font-mono);color:var(--color-text-tertiary)">keys 1–5 · hash share</span></div>
+<div class="site-header">
+  <h1>AI Field Guide</h1>
+  <span>v3.2 · senior devs + QA · August 2026</span>
+</div>
+<div class="nav-strip" role="tablist">
+  <button class="nav-btn active" data-ch="0" onclick="goCh(0)"><span class="nav-dot" style="background:#888780"></span>Origin</button>
+  <button class="nav-btn" data-ch="1" onclick="goCh(1)"><span class="nav-dot" style="background:#7F77DD"></span>Arsenal</button>
+  <button class="nav-btn" data-ch="2" onclick="goCh(2)"><span class="nav-dot" style="background:#1D9E75"></span>Craft</button>
+  <button class="nav-btn" data-ch="3" onclick="goCh(3)"><span class="nav-dot" style="background:#D85A30"></span>Local AI</button>
+  <button class="nav-btn" data-ch="4" onclick="goCh(4)"><span class="nav-dot" style="background:#D4537E"></span>Next wave</button>
+</div>
+
+<div id="ch0" class="chapter active">
+  <div class="chapter-hero" style="border-left-color:#888780">
+    <div class="ch-eyebrow">Chapter 1 · origin story</div>
+    <div class="ch-title">From Enigma to LLMs</div>
+    <div class="ch-sub">80 years of machines learning to think — and why it finally matters for your daily dev workflow</div>
+  </div>
+  <div class="sub-tabs">
+    <button class="stab on" onclick="goSub('o-machines',this,'ch0')">Mechanical era</button>
+    <button class="stab" onclick="goSub('o-neural',this,'ch0')">Neural awakening</button>
+    <button class="stab" onclick="goSub('o-llm',this,'ch0')">LLM explosion</button>
+    <button class="stab" onclick="goSub('o-why',this,'ch0')">Why it matters now</button>
+  </div>
+  <div id="o-machines" class="subpage active" data-ch="ch0">
+    <div class="tl">
+      <div class="era"><div class="era-h"><div class="era-dot" style="background:#888780"></div><span class="era-yr">1940s</span><span class="era-nm">Enigma + Bombe — the first AI problem</span></div><div class="era-b"><p>Turing's Bombe at Bletchley Park. Not intelligence — but the conceptual seed: <strong>a machine processing symbols to extract meaning humans can't see in reasonable time.</strong> The adversarial "prompt" was a known plaintext crib.</p><p class="era-ins">Every prompt you write today is a crib. You're giving the machine a known-good handle to orient from.</p></div></div>
+      <div class="era"><div class="era-h"><div class="era-dot" style="background:#888780"></div><span class="era-yr">1950</span><span class="era-nm">Turing Test — can machines mimic?</span></div><div class="era-b"><p>The imitation game. The benchmark isn't intelligence — it's <strong>convincing mimicry.</strong> Every hallucination is a model optimising for mimicry over truth.</p><p class="era-ins">LLMs are still fundamentally imitation machines — extraordinarily refined ones. Don't forget it.</p></div></div>
+      <div class="era"><div class="era-h"><div class="era-dot" style="background:#5F5E5A"></div><span class="era-yr">1966</span><span class="era-nm">ELIZA — the first dopamine loop</span></div><div class="era-b"><p>Weizenbaum's ELIZA. Pattern matching + scripted reflection. Zero understanding. Infinite perceived empathy. The ELIZA effect: humans anthropomorphise even dumb pattern-matchers.</p><p class="era-ins">The dopamine loop was discovered in 1966. You're not immune. Neither are your teammates.</p></div></div>
+      <div class="era"><div class="era-h"><div class="era-dot" style="background:#444441"></div><span class="era-yr">1980–90s</span><span class="era-nm">Expert systems — the first AI winter</span></div><div class="era-b"><p>Billions spent encoding IF [symptom] THEN [diagnosis]. Brittle. No generalisation. Collapsed.</p><p class="era-ins">Hand-crafted rules don't scale. Statistical learning on massive data wins. Every time.</p></div></div>
+    </div>
+  </div>
+  <div id="o-neural" class="subpage" data-ch="ch0">
+    <div class="tl">
+      <div class="era"><div class="era-h"><div class="era-dot" style="background:#D85A30"></div><span class="era-yr">1997</span><span class="era-nm">Deep Blue — superhuman narrow intelligence</span></div><div class="era-b"><p>IBM beats Kasparov. Not general AI — <strong>superhuman narrow intelligence.</strong></p><p class="era-ins">Copilot autocomplete is Deep Blue for code tokens.</p></div></div>
+      <div class="era"><div class="era-h"><div class="era-dot" style="background:#378ADD"></div><span class="era-yr">2012</span><span class="era-nm">AlexNet — GPUs unlock deep learning</span></div><div class="era-b"><p>Krizhevsky et al. crush ImageNet. <strong>GPUs + big data + backprop = the modern stack.</strong></p><p class="era-ins">Hardware unlocks capability. Same pattern as local LLMs on a laptop.</p></div></div>
+      <div class="era"><div class="era-h"><div class="era-dot" style="background:#7F77DD"></div><span class="era-yr">2017</span><span class="era-nm">Attention is all you need</span></div><div class="era-b"><p>Self-attention replaces recurrence. Every major model today is a Transformer variant.</p><p class="era-ins">This generation's Enigma moment.</p></div></div>
+    </div>
+  </div>
+  <div id="o-llm" class="subpage" data-ch="ch0">
+    <div class="tl">
+      <div class="era"><div class="era-h"><div class="era-dot" style="background:#639922"></div><span class="era-yr">2018–20</span><span class="era-nm">GPT-1 → GPT-3 — scale laws</span></div><div class="era-b"><p><strong>Bigger model + more data = better, predictably.</strong> In-context learning emerges. The prompt becomes the programming interface.</p></div></div>
+      <div class="era"><div class="era-h"><div class="era-dot" style="background:#D4537E"></div><span class="era-yr">2022</span><span class="era-nm">ChatGPT + RLHF</span></div><div class="era-b"><p>100M users in 60 days. RLHF makes the model useful and conversational. The work dopamine loop is born.</p></div></div>
+      <div class="era"><div class="era-h"><div class="era-dot" style="background:#534AB7"></div><span class="era-yr">2023–26</span><span class="era-nm">Cambrian explosion</span></div><div class="era-b"><p>By mid-2026 the field is fragmented on purpose: Claude (safety + long context), Gemini (mass context + search), GPT (speed + vision), Grok (live X), Llama / Qwen (open weights), DeepSeek (cheap reasoning). <strong>Pick by failure mode, not brand.</strong></p><p class="era-ins">Version tags rot every quarter. Roles stay stable.</p></div></div>
+    </div>
+  </div>
+  <div id="o-why" class="subpage" data-ch="ch0">
+    <div class="grid-2">
+      <div class="card"><div class="badge bp">Then</div><div class="ai-name">Mimicry machines</div><div class="ai-tag">ELIZA to GPT-2: statistically plausible text. No planning, no tool use, no memory. Impressive demos, brittle in production.</div></div>
+      <div class="card hi" style="border-color:#534AB7"><div class="badge bp">Now (2026)</div><div class="ai-name">Reasoning + action</div><div class="ai-tag">Claude Code, Cursor, Copilot Workspace: reads files, writes code, runs tests, pushes branches. Chat toy → engineering collaborator.</div></div>
+    </div>
+    <div class="rc" style="border-left-color:#534AB7"><div class="rc-t">The wave you're riding</div><div class="rc-b">Not "AI is helpful". "AI can do 60% of the mechanical work if you direct it precisely". Senior job: know what to build, review output, catch failure modes, prompt with enough context that the machine doesn't invent requirements.</div></div>
+  </div>
+</div>
+
+<div id="ch1" class="chapter">
+  <div class="chapter-hero" style="border-left-color:#7F77DD">
+    <div class="ch-eyebrow">Chapter 2 · the arsenal</div>
+    <div class="ch-title">Six tools, six superpowers</div>
+    <div class="ch-sub">What each AI actually does best — and the one thing each gets wrong</div>
+  </div>
+  <div class="sub-tabs">
+    <button class="stab on" onclick="goSub('a-cards',this,'ch1')">Model cards</button>
+    <button class="stab" onclick="goSub('a-flow',this,'ch1')">Decision flow</button>
+    <button class="stab" onclick="goSub('a-grok',this,'ch1')">Grok spotlight</button>
+    <button class="stab" onclick="goSub('a-traps',this,'ch1')">Traps + rules</button>
+  </div>
+  <div id="a-cards" class="subpage active" data-ch="ch1">
+    <div class="freshness">Versions current as of <strong>August 2026</strong>. Roles are stable; flagship names are not. Re-check before quoting a version in a decision.</div>
+    <div class="cards-6">
+      <div class="card hi" style="border-color:#534AB7"><span class="badge bp">Claude</span><div class="ai-name">Deep work</div><div class="ai-tag">Architecture, long-context reasoning, code review, writing</div><ul class="ul"><li><span class="ck">✓</span>Multi-file refactors</li><li><span class="ck">✓</span>Explain the why</li><li><span class="ck">✓</span>PR / doc writing</li><li><span class="ck">✓</span>Security reviews</li><li><span class="cx">✗</span>Real-time search</li></ul><div class="ml">depth: max</div></div>
+      <div class="card"><span class="badge bb">Copilot</span><div class="ai-name">In-editor flow</div><div class="ai-tag">Autocomplete, local context, next-line prediction</div><ul class="ul"><li><span class="ck">✓</span>Line/block complete</li><li><span class="ck">✓</span>Boilerplate</li><li><span class="ck">✓</span>Stays in VS Code</li><li><span class="cx">✗</span>Long reasoning</li><li><span class="cx">✗</span>System design</li></ul><div class="ml">depth: medium</div></div>
+      <div class="card"><span class="badge bg">GPT</span><div class="ai-name">Quick answers</div><div class="ai-tag">Fast, vision, web browsing, broad knowledge</div><ul class="ul"><li><span class="ck">✓</span>Fast iteration</li><li><span class="ck">✓</span>Image / vision</li><li><span class="ck">✓</span>Web browsing</li><li><span class="cx">✗</span>Deep codebase ctx</li></ul><div class="ml">depth: high (speed)</div></div>
+      <div class="card"><span class="badge bpk">Grok</span><div class="ai-name">Real-time pulse</div><div class="ai-tag">Live X/Twitter, news, trends, opinionated reasoning</div><ul class="ul"><li><span class="ck">✓</span>Live X/news</li><li><span class="ck">✓</span>Tech trend signal</li><li><span class="ck">✓</span>Think mode</li><li><span class="cx">✗</span>No company code here</li></ul><div class="ml">depth: current events</div></div>
+      <div class="card"><span class="badge bc">Gemini</span><div class="ai-name">Context king</div><div class="ai-tag">Huge context, Workspace, multimodal, search-grounded</div><ul class="ul"><li><span class="ck">✓</span>Massive context</li><li><span class="ck">✓</span>Docs/Sheets/Drive</li><li><span class="ck">✓</span>Grounded answers</li><li><span class="cx">✗</span>Verbose default</li></ul><div class="ml">depth: mass context</div></div>
+      <div class="card"><span class="badge ba">DeepSeek</span><div class="ai-name">Logic engine</div><div class="ai-tag">Algorithms, math, reasoning — open weights, non-sensitive only</div><ul class="ul"><li><span class="ck">✓</span>DSA / proofs</li><li><span class="cx">✗</span>Privacy concern</li><li><span class="cx">✗</span>SaaS patterns</li></ul><div class="ml">depth: logic-first</div></div>
+    </div>
+  </div>
+  <div id="a-flow" class="subpage" data-ch="ch1">
+    <div class="sl">what's in front of you → which brain to open</div>
+    <div class="fr"><div class="fn fw">Typing in editor</div><span class="fa">→</span><div class="fn fo">Copilot</div></div>
+    <div class="fr"><div class="fn fw">Quick syntax / API</div><span class="fa">→</span><div class="fn fo">GPT</div></div>
+    <div class="fr"><div class="fn fw">Deep bug / architecture</div><span class="fa">→</span><div class="fn fh">Claude</div></div>
+    <div class="fr"><div class="fn fw">Tech trend / pulse</div><span class="fa">→</span><div class="fn" style="background:#FBEAF0;border-color:#ED93B1;color:#72243E">Grok</div></div>
+    <div class="fr"><div class="fn fw">Search-grounded</div><span class="fa">→</span><div class="fn fo">GPT or Gemini</div></div>
+    <div class="fr"><div class="fn fw">DSA (non-sensitive)</div><span class="fa">→</span><div class="fn fo">DeepSeek</div></div>
+    <div class="fr"><div class="fn fw">Full repo dump</div><span class="fa">→</span><div class="fn fo">Gemini</div></div>
+    <div class="fr"><div class="fn fw">QA cases / PR docs</div><span class="fa">→</span><div class="fn fh">Claude</div></div>
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 13px;margin-top:1rem"><div class="sl" style="margin-bottom:5px">dopamine trap</div><p style="font-size:12px;color:var(--color-text-secondary);line-height:1.65">Switching AI every 5 min because "maybe this one will get it" = context fragmentation + zero output. Pick one. Exhaust it. Then switch.</p></div>
+  </div>
+  <div id="a-grok" class="subpage" data-ch="ch1">
+    <div class="grid-2">
+      <div class="card hi" style="border-color:#D4537E"><span class="badge bpk">Grok · xAI</span><div class="ai-name">What makes it different</div><div class="ai-tag">Live X access. Maximally curious, minimally filtered. Think mode for chain-of-thought.</div><ul class="ul"><li><span class="ck">✓</span>Live X real-time</li><li><span class="ck">✓</span>Breaking incidents</li><li><span class="ck">✓</span>Think mode</li><li><span class="cx">✗</span>No company code here</li></ul></div>
+      <div>
+        <div class="rc" style="border-left-color:#D4537E"><div class="rc-t">Is this lib still relevant?</div><div class="rc-b">Ask Grok. It knows what devs said on X this week, not a 6-month-old blog.</div></div>
+        <div class="rc" style="border-left-color:#D4537E"><div class="rc-t">Incident research</div><div class="rc-b">Major CVE or outage — real engineer reactions, live.</div></div>
+        <div class="rc" style="border-left-color:#D4537E"><div class="rc-t">Second opinion</div><div class="rc-b">Think mode as a tie-breaker against Claude on logic.</div></div>
+      </div>
+    </div>
+    <div class="pc"><div class="pl">community signal prompt</div><div class="pt">What's the X/Twitter dev consensus on <em>[tech]</em> this week?<br>Separate: hype vs actual production usage.<br>Include notable criticism from senior engineers.</div><button class="cpb" onclick="copyText(this,`What's the X/Twitter dev consensus on [tech] this week?\nSeparate: hype vs actual production usage.\nInclude notable criticism from senior engineers.`)" type="button">copy</button></div>
+  </div>
+  <div id="a-traps" class="subpage" data-ch="ch1">
+    <div class="sl">10 anti-patterns</div>
+    <ul class="rl">
+      <li><span class="rn">01</span>"Write me the whole feature" with zero context. Stack, constraints, goal. One ask at a time.</li>
+      <li><span class="rn">02</span>Hopping 3 AIs for the same problem. Pick one, give full context, switch only when genuinely wrong.</li>
+      <li><span class="rn">03</span>Accepting first output unread. AI code has bugs. You review. Always.</li>
+      <li><span class="rn">04</span>Pasting company secrets into DeepSeek or free-tier tools.</li>
+      <li><span class="rn">05</span>Vague refactor: "make it better". Name the axis: perf, readability, DRY, bundle.</li>
+      <li><span class="rn">06</span>Using autocomplete for architecture. It predicts tokens, not systems.</li>
+      <li><span class="rn">07</span>"It doesn't work" is zero signal. Paste error + what changed + what you tried.</li>
+      <li><span class="rn">08</span>AI code + AI tests = no real coverage. Generate tests first, or alongside.</li>
+      <li><span class="rn">09</span>Treating output as final. It's a draft. Ship what you understand.</li>
+      <li><span class="rn">10</span>Long chat with accumulated wrong context. Start fresh when assumptions rot.</li>
+    </ul>
+  </div>
+</div>
+
+<div id="ch2" class="chapter">
+  <div class="chapter-hero" style="border-left-color:#1D9E75">
+    <div class="ch-eyebrow">Chapter 3 · the craft</div>
+    <div class="ch-title">Prompting that actually works</div>
+    <div class="ch-sub">Copy-paste patterns for dev + QA — and the shortcode system for speed</div>
+  </div>
+  <div class="sub-tabs">
+    <button class="stab on" onclick="goSub('c-patterns',this,'ch2')">Prompt patterns</button>
+    <button class="stab" onclick="goSub('c-codes',this,'ch2')">Shortcodes</button>
+    <button class="stab" onclick="goSub('c-principles',this,'ch2')">6 principles</button>
+  </div>
+  <div id="c-patterns" class="subpage active" data-ch="ch2">
+    <div class="grid-2">
+      <div>
+        <div class="pc"><div class="pl">Code review · Claude</div><div class="pt">Review this <em>[component/function]</em>.<br>Flag: security, perf, readability.<br>Stack: React, Webpack 5, multi-tenant SaaS.<br>Be terse. No praise.</div><button class="cpb" type="button" onclick="copyText(this,'Review this [component/function].\nFlag: security, perf, readability.\nStack: React, Webpack 5, multi-tenant SaaS.\nBe terse. No praise.')">copy</button></div>
+        <div class="pc"><div class="pl">Debug · any</div><div class="pt">Error: <em>[paste]</em><br>Context: <em>[what changed]</em><br>Stack: <em>[tech]</em><br>Expected: <em>[X]</em>, got: <em>[Y]</em><br>Tried: <em>[failed]</em></div><button class="cpb" type="button" onclick="copyText(this,'Error: [paste]\nContext: [what changed]\nStack: [tech]\nExpected: [X], got: [Y]\nTried: [failed]')">copy</button></div>
+        <div class="pc"><div class="pl">Architecture · Claude</div><div class="pt">Decide: <em>[A vs B]</em><br>Constraints: perf, multi-tenant, Webpack 5<br>Recommendation first, trade-offs second.<br>No intro sentences.</div><button class="cpb" type="button" onclick="copyText(this,'Decide: [A vs B]\nConstraints: perf, multi-tenant, Webpack 5\nRecommendation first, trade-offs second.\nNo intro sentences.')">copy</button></div>
+      </div>
+      <div>
+        <div class="pc"><div class="pl">QA test gen</div><div class="pt">Feature: <em>[description]</em><br>Generate: happy path, edges, failure modes.<br>Format: Given / When / Then.<br>Multi-tenant isolation always a concern.</div><button class="cpb" type="button" onclick="copyText(this,'Feature: [description]\nGenerate: happy path, edges, failure modes.\nFormat: Given / When / Then.\nMulti-tenant isolation always a concern.')">copy</button></div>
+        <div class="pc"><div class="pl">Refactor</div><div class="pt">Refactor for: <em>[readability / perf / DRY]</em><br>Keep: same API surface, no class components.<br>Arrow functions, named exports only.</div><button class="cpb" type="button" onclick="copyText(this,'Refactor for: [readability / perf / DRY]\nKeep: same API surface, no class components.\nArrow functions, named exports only.')">copy</button></div>
+        <div class="pc"><div class="pl">Explain to teammate</div><div class="pt">Explain <em>[concept/code]</em> to a senior dev.<br>Skip basics. Focus on non-obvious parts.<br>Max 3 paragraphs.</div><button class="cpb" type="button" onclick="copyText(this,'Explain [concept/code] to a senior dev.\nSkip basics. Focus on non-obvious parts.\nMax 3 paragraphs.')">copy</button></div>
+      </div>
+    </div>
+  </div>
+  <div id="c-codes" class="subpage" data-ch="ch2">
+    <div class="sl">paste the glyph at the start of any message to Claude</div>
+    <div class="rc" style="border-left-color:#1D9E75;margin-bottom:10px"><div class="rc-b">Team convention, not a built-in. Works only if the workspace maps each glyph. Without that mapping they're just characters.</div></div>
+    <div class="sc-g">
+      <div class="sc"><div class="sc-c">գ</div><div class="sc-d">Google search / find current info online</div></div>
+      <div class="sc"><div class="sc-c">սի</div><div class="sc-d">Clean + organise code — no logic change</div></div>
+      <div class="sc"><div class="sc-c">ծծ</div><div class="sc-d">Fast-mode: INC / Product / QA questions quick</div></div>
+      <div class="sc"><div class="sc-c">ցծ</div><div class="sc-d">Apply fix → merge tests → push git / TFS</div></div>
+      <div class="sc"><div class="sc-c">ջի</div><div class="sc-d">Find task by link or ID → do it → push branch</div></div>
+      <div class="sc"><div class="sc-c">ջիջ</div><div class="sc-d">Same as ջի with precision test coverage</div></div>
+    </div>
+    <div style="margin-top:1rem;background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px 13px"><div class="pt" style="color:var(--color-text-secondary)">Example: <em>ծծ</em> why is our webpack build slow on CI but not local?</div></div>
+  </div>
+  <div id="c-principles" class="subpage" data-ch="ch2">
+    <ul class="rl">
+      <li><span class="rn">01</span><div><strong style="color:var(--color-text-primary);font-weight:500">Be specific from the start.</strong> Task, stack, constraints.</div></li>
+      <li><span class="rn">02</span><div><strong style="color:var(--color-text-primary);font-weight:500">Show examples.</strong> Paste a similar function. The model calibrates.</div></li>
+      <li><span class="rn">03</span><div><strong style="color:var(--color-text-primary);font-weight:500">Force step-by-step</strong> on multi-part logic.</div></li>
+      <li><span class="rn">04</span><div><strong style="color:var(--color-text-primary);font-weight:500">Iterate precisely.</strong> "Make it better" is noise.</div></li>
+      <li><span class="rn">05</span><div><strong style="color:var(--color-text-primary);font-weight:500">Assign a role.</strong> Security auditor ≠ plain request.</div></li>
+      <li><span class="rn">06</span><div><strong style="color:var(--color-text-primary);font-weight:500">Allow uncertainty.</strong> "If unsure, say so."</div></li>
+    </ul>
+  </div>
+</div>
+
+<div id="ch3" class="chapter">
+  <div class="chapter-hero" style="border-left-color:#D85A30">
+    <div class="ch-eyebrow">Chapter 4 · local AI</div>
+    <div class="ch-title">Your data stays home</div>
+    <div class="ch-sub">Lightweight open-source models for corporate networks — no cloud, no per-token cost</div>
+  </div>
+  <div class="sub-tabs">
+    <button class="stab on" onclick="goSub('l-models',this,'ch3')">Model picks</button>
+    <button class="stab" onclick="goSub('l-deploy',this,'ch3')">Deploy in 30 min</button>
+    <button class="stab" onclick="goSub('l-chooser',this,'ch3')">Hardware guide</button>
+  </div>
+  <div id="l-models" class="subpage active" data-ch="ch3">
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:9px 13px;margin-bottom:1rem"><p style="font-size:12px;color:var(--color-text-secondary);line-height:1.65"><strong style="color:var(--color-text-primary)">Why local?</strong> Data never leaves the network. Zero per-token cost. GDPR-default. Air-gappable. Runs on a box you already own.</p></div>
+    <div style="overflow-x:auto"><table class="mt">
+      <thead><tr><th>Model</th><th>Size</th><th>RAM (Q4)</th><th>License</th><th>Best for</th><th>Pick</th></tr></thead>
+      <tbody>
+        <tr><td><span class="mn">Qwen3-Coder-Next</span></td><td>~30B MoE</td><td>~18 GB</td><td><span class="wb wt">Apache 2.0</span></td><td>Agentic coding, tool use</td><td><span class="wb wp">2026 top</span></td></tr>
+        <tr><td><span class="mn">Qwen3 4B</span></td><td>4B</td><td>~3.8 GB</td><td><span class="wb wt">Apache 2.0</span></td><td>Reasoning, multilingual, lean box</td><td><span class="wb wp">Lean</span></td></tr>
+        <tr><td><span class="mn">Qwen 2.5 7B</span></td><td>7B</td><td>~5 GB</td><td><span class="wb wt">Apache 2.0</span></td><td>Proven all-rounder</td><td><span class="wb wg">Safe default</span></td></tr>
+        <tr><td><span class="mn">Phi-4 mini</span></td><td>3.8B</td><td>~3.5 GB</td><td><span class="wb wt">MIT</span></td><td>CPU-only, CI, 8GB laptops</td><td><span class="wb wb2">CPU</span></td></tr>
+        <tr><td><span class="mn">Llama 4 Scout</span></td><td>17B MoE</td><td>~11 GB</td><td><span class="wb wa">Llama*</span></td><td>General + long context</td><td><span class="wb wg">Balanced</span></td></tr>
+        <tr><td><span class="mn">Gemma 3 4B</span></td><td>4B</td><td>~4.2 GB</td><td><span class="wb wa">Google T&C</span></td><td>Vision + text</td><td><span class="wb wb2">Multimodal</span></td></tr>
+      </tbody>
+    </table></div>
+    <p style="font-size:11px;color:var(--color-text-tertiary);margin-top:8px">* Llama commercial use has a 700M MAU cap — fine for internal deploy.</p>
+    <div class="rc" style="margin-top:1rem;border-left-color:#D85A30"><div class="rc-t">Start here</div><div class="rc-b">Coding: <strong>Qwen3-Coder-Next</strong> if you have VRAM, else <strong>Qwen 2.5 7B</strong>. Ollama + OpenWebUI. Apache 2.0. Re-benchmark quarterly.</div></div>
+  </div>
+  <div id="l-deploy" class="subpage" data-ch="ch3">
+    <div class="rc" style="border-left-color:#D85A30;margin-bottom:1rem"><div class="rc-t">Stack: Ollama + OpenWebUI</div><div class="rc-b">Ollama = local runtime. OpenWebUI = ChatGPT-style browser UI. Both open-source.</div></div>
+    <div class="ib"><span class="ic"># install</span><br>curl -fsSL https://ollama.com/install.sh | sh<br><br><span class="ic"># pull</span><br>ollama pull qwen2.5:7b<br>ollama pull phi4-mini<br><br><span class="ic"># serve :11434</span><br>ollama serve<br><br><span class="ic"># UI</span><br>docker run -d -p 3000:8080 -e OLLAMA_BASE_URL=http://host.docker.internal:11434 ghcr.io/open-webui/open-webui:main</div>
+    <div class="grid-2" style="margin-top:1rem">
+      <div class="rc" style="border-left-color:#1D9E75"><div class="rc-t">Security</div><div class="rc-b">Bind Ollama internal-only. OpenWebUI behind SSO. Private registry for models. Log prompts for audit.</div></div>
+      <div class="rc" style="border-left-color:#1D9E75"><div class="rc-t">Smoke test</div><div class="rc-b" style="font-family:var(--font-mono);font-size:11px">curl localhost:11434/api/generate -d '{"model":"qwen2.5:7b","prompt":"explain multi-tenant isolation in 2 sentences","stream":false}'</div></div>
+    </div>
+  </div>
+  <div id="l-chooser" class="subpage" data-ch="ch3">
+    <div class="fr"><div class="fn fw">8GB RAM CPU</div><span class="fa">→</span><div class="fn fo">Phi-4 mini</div></div>
+    <div class="fr"><div class="fn fw">8GB VRAM</div><span class="fa">→</span><div class="fn fh">Qwen 2.5 7B / Qwen3 4B</div></div>
+    <div class="fr"><div class="fn fw">16GB VRAM</div><span class="fa">→</span><div class="fn fh">Qwen 2.5 14B / Llama 4 Scout</div></div>
+    <div class="fr"><div class="fn fw">24GB+ VRAM</div><span class="fa">→</span><div class="fn fh">Qwen3-Coder-Next</div></div>
+    <div class="fr"><div class="fn fw">32GB+ VRAM</div><span class="fa">→</span><div class="fn fh">Llama 3.3 70B / Qwen 72B</div></div>
+    <div class="fr"><div class="fn fw">Need vision</div><span class="fa">→</span><div class="fn fo">Gemma 3 4B / Qwen3-VL</div></div>
+    <div style="background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 13px;margin-top:1rem"><p style="font-size:12px;color:var(--color-text-secondary);line-height:1.65"><strong style="color:var(--color-text-primary)">Quant:</strong> Q4_K_M default. Q5_K_M if VRAM headroom. Q3_K_S only when boxed in.</p></div>
+  </div>
+</div>
+
+<div id="ch4" class="chapter">
+  <div class="chapter-hero" style="border-left-color:#D4537E">
+    <div class="ch-eyebrow">Chapter 5 · next wave</div>
+    <div class="ch-title">What's coming — and how to ride it</div>
+    <div class="ch-sub">Concrete shifts that change how the team works in 12–24 months</div>
+  </div>
+  <div class="sub-tabs">
+    <button class="stab on" onclick="goSub('n-waves',this,'ch4')">The waves</button>
+    <button class="stab" onclick="goSub('n-roles',this,'ch4')">Role shifts</button>
+    <button class="stab" onclick="goSub('n-action',this,'ch4')">Action now</button>
+  </div>
+  <div id="n-waves" class="subpage active" data-ch="ch4">
+    <div class="future-row"><div class="future-yr">Shipped</div><div class="future-card" style="border-left:3px solid #534AB7"><span class="future-tag" style="background:#EEEDFE;color:#3C3489">Wave 1 · agentic coding</span><div class="future-t">AI writes → tests → pushes → reviews its PR</div><div class="future-d">Claude Code, Cursor, Copilot Workspace. You describe the outcome. You review domain errors.</div></div></div>
+    <div class="future-row"><div class="future-yr">Shipped</div><div class="future-card" style="border-left:3px solid #1D9E75"><span class="future-tag" style="background:#E1F5EE;color:#085041">Wave 2 · local models production-grade</span><div class="future-t">Open models rival frontier on focused tasks</div><div class="future-d">Air-gapped, zero-cost inference. Compliance increasingly mandates local-first for sensitive data.</div></div></div>
+    <div class="future-row"><div class="future-yr">Now–6mo</div><div class="future-card" style="border-left:3px solid #BA7517"><span class="future-tag" style="background:#FAEEDA;color:#633806">Wave 3 · multimodal devtools</span><div class="future-t">Screenshot a UI bug → diagnose + fix</div><div class="future-d">Paste Figma → working component. QA workflows transform first.</div></div></div>
+    <div class="future-row"><div class="future-yr">6–12mo</div><div class="future-card" style="border-left:3px solid #D85A30"><span class="future-tag" style="background:#FAECE7;color:#712B13">Wave 4 · AI-native testing</span><div class="future-t">Tests from requirements, not from code</div><div class="future-d">QA becomes specification stewardship, not test authorship.</div></div></div>
+    <div class="future-row"><div class="future-yr">12–24mo</div><div class="future-card" style="border-left:3px solid #D4537E"><span class="future-tag" style="background:#FBEAF0;color:#72243E">Wave 5 · reasoning agents</span><div class="future-t">Agents handle feature slices end-to-end</div><div class="future-d">Humans set direction and approve. 10x is a person + their agent stack.</div></div></div>
+  </div>
+  <div id="n-roles" class="subpage" data-ch="ch4">
+    <div class="grid-2">
+      <div>
+        <div class="rc" style="border-left-color:#D85A30"><div class="rc-t">Shrinking</div><div class="rc-b">Boilerplate, CRUD, first-draft docs, formatting, PR descriptions.</div></div>
+        <div class="rc" style="border-left-color:#D85A30"><div class="rc-t">Commoditising</div><div class="rc-b">Syntax recall, library APIs by heart, converting designs to markup.</div></div>
+      </div>
+      <div>
+        <div class="rc" style="border-left-color:#1D9E75"><div class="rc-t">Growing</div><div class="rc-b">System judgment, failure modes, multi-tenant security intuition, catching subtle wrongness, domain the model doesn't have.</div></div>
+        <div class="rc" style="border-left-color:#1D9E75"><div class="rc-t">New skill: agent direction</div><div class="rc-b">Decompose + constrain. Compounds.</div></div>
+      </div>
+    </div>
+  </div>
+  <div id="n-action" class="subpage" data-ch="ch4">
+    <ul class="rl">
+      <li><span class="rn">W1</span>Pick one AI you've avoided. One full real task. Opinion from use, not reputation.</li>
+      <li><span class="rn">W2</span>Ollama + Qwen 2.5 7B. Review a piece of your code. Compare to Claude. 20 min.</li>
+      <li><span class="rn">W3</span>Agentic mode on one isolated task. Watch where it fails.</li>
+      <li><span class="rn">W4</span>Write one prompt for your most repetitive daily task. Share it.</li>
+      <li><span class="rn">W5</span>Grok: community consensus on one tech decision. Bring it to planning.</li>
+      <li><span class="rn">W6</span>Find the 80% handoff in your workflow. Prototype it.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="footer">
+  <span>AI Field Guide v3.2 · <a href="https://github.com/Artsrun/ai-field-guide" style="color:inherit">Artsrun/ai-field-guide</a></span>
+  <span>August 2026 · update quarterly</span>
+</div>
+</div>
+<script>
+const FIRST = ['o-machines','a-cards','c-patterns','l-models','n-waves'];
+const setHash = (ch, sub) => { history.replaceState(null, '', '#' + ch + '/' + sub); };
+const goCh = (idx) => {
+  document.querySelectorAll('.chapter').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const ch = document.getElementById('ch' + idx);
+  ch.classList.add('active');
+  document.querySelectorAll('.nav-btn')[idx].classList.add('active');
+  const on = ch.querySelector('.subpage.active') || ch.querySelector('.subpage');
+  setHash('ch' + idx, on.id);
+};
+const goSub = (id, btn, chId) => {
+  const ch = document.getElementById(chId);
+  ch.querySelectorAll('.subpage').forEach(s => s.classList.remove('active'));
+  ch.querySelectorAll('.stab').forEach(b => b.classList.remove('on'));
+  ch.querySelector('#' + id).classList.add('active');
+  btn.classList.add('on');
+  setHash(chId, id);
+};
+const applyHash = () => {
+  const h = (location.hash || '').slice(1);
+  if (!h) return;
+  const [chId, sub] = h.split('/');
+  const idx = Number((chId || 'ch0').replace('ch',''));
+  if (Number.isNaN(idx) || idx < 0 || idx > 4) return;
+  goCh(idx);
+  if (sub && document.getElementById(sub)) {
+    const ch = document.getElementById('ch' + idx);
+    const btn = [...ch.querySelectorAll('.stab')][[...ch.querySelectorAll('.subpage')].findIndex(s => s.id === sub)];
+    if (btn) goSub(sub, btn, 'ch' + idx);
+  }
+};
+const copyText = (btn, text) => {
+  const done = (ok) => { const o = btn.textContent; btn.textContent = ok ? 'copied' : 'copy manually'; setTimeout(() => btn.textContent = o, 1400); };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => done(true)).catch(() => done(false));
+  } else {
+    const ta = document.createElement('textarea'); ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(true); } catch { done(false); }
+    ta.remove();
+  }
+};
+document.addEventListener('keydown', (e) => {
+  if (e.target.matches('input,textarea')) return;
+  const n = Number(e.key);
+  if (n >= 1 && n <= 5) goCh(n - 1);
+});
+window.addEventListener('hashchange', applyHash);
+applyHash();
+</script>
+</body>
+</html>
