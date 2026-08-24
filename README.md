@@ -1,18 +1,19 @@
 # AI Field Guide
 
-**Opener · 0–100 Glossary · Поле Чудес · Neural Quiz**
+**Opener · 0–100 Glossary · Поле Чудес · Neural Quiz · Blog (v3.1)**
 
-Zero-dependency educational suite for AI literacy + gamified study.
+Zero-dependency educational suite for AI literacy + a senior-dev/QA field guide.
 
 ## Live structure
 
 ```
 /
-├── index.html          ← Hub (unified nav)
+├── index.html          ← Hub
 ├── opener/             ← 10-min fear-ledger + first skills
 ├── glossary/           ← 50 terms ordered 0→100
 ├── game/               ← Поле Чудес (guess the term)
-└── neural/             ← Epoch / Batch / Logit / Dropout quiz
+├── neural/             ← Epoch / Batch / Logit / Dropout quiz
+└── blog/               ← v3.1 field guide (senior devs + QA)
 ```
 
 ## Enable GitHub Pages
@@ -22,11 +23,12 @@ Zero-dependency educational suite for AI literacy + gamified study.
 3. Branch: **prod** / `/` (root)
 4. Save
 
-Base URL: `https://artsrun.github.io/ai-field-guide/`
+Base URL: `https://artsrun.github.io/ai-field-guide/`  
+Blog: `https://artsrun.github.io/ai-field-guide/blog/`
 
 ## Design principles
 
-- Unified sticky nav on every page
+- Unified sticky nav on literacy pages
 - Shared theme (light/dark persists)
 - Mobile-first, zero dependencies
-- Gamification: wheel, letter guessing, $5M final, score sharing ready for social
+- Field guide: hash-routed chapters, copy-paste prompts, local-model table
