@@ -6,7 +6,7 @@
 <meta name="color-scheme" content="light dark" />
 <meta name="theme-color" content="#eeece6" id="meta-theme" />
 <title>AI Field Guide</title>
-<meta name="description" content="Opener, 0–100 Glossary, Поле Чудес game, and Neural quiz. Zero-dependency educational suite." />
+<meta name="description" content="Opener, 0–100 Glossary, Поле Чудес, Neural quiz, and the v3.1 senior-dev field guide. Zero-dependency suite." />
 <style>
 :root {
   --sp-1: 4px; --sp-2: 8px; --sp-3: 16px; --sp-4: 24px; --sp-5: 40px;
@@ -51,7 +51,6 @@ button { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: var(--r-1); }
 .lbl { font-family: var(--mono); font-size: var(--fs-label); letter-spacing: .13em; text-transform: uppercase; color: var(--muted); }
 
-/* ── unified nav ─────────────────────────────────────────── */
 .nav {
   position: sticky; top: 0; z-index: 30;
   background: var(--bg); border-bottom: 1px solid var(--line);
@@ -96,15 +95,12 @@ button { font: inherit; color: inherit; }
 .icon-btn:hover { color: var(--ink); border-color: var(--brand-edge); }
 .icon-btn svg { width: 17px; height: 17px; }
 
-/* ── main ────────────────────────────────────────────────── */
 main {
   max-width: 760px; margin: 0 auto;
   padding: 32px 16px 64px;
 }
 
-.hero {
-  margin-bottom: 40px;
-}
+.hero { margin-bottom: 40px; }
 .hero .lbl { display: block; margin-bottom: 10px; color: var(--brand); }
 .hero h1 {
   font-family: var(--serif);
@@ -113,14 +109,9 @@ main {
   margin-bottom: 14px;
   text-wrap: balance;
 }
-.hero p {
-  font-size: 1.05rem; color: var(--body); max-width: 42ch;
-}
+.hero p { font-size: 1.05rem; color: var(--body); max-width: 44ch; }
 
-/* ── doors ───────────────────────────────────────────────── */
-.doors {
-  display: grid; gap: 12px;
-}
+.doors { display: grid; gap: 12px; }
 @media (min-width: 560px) {
   .doors { grid-template-columns: 1fr 1fr; }
 }
@@ -159,8 +150,8 @@ main {
   border-color: var(--brand-edge);
   background: linear-gradient(160deg, var(--elev) 60%, var(--brand-fill));
 }
+.door--wide { grid-column: 1 / -1; min-height: 0; }
 
-/* ── footer ──────────────────────────────────────────────── */
 .ftr {
   margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--line);
   font-family: var(--mono); font-size: var(--fs-label); color: var(--muted);
@@ -188,6 +179,7 @@ main {
       <a class="nav__link" href="./glossary/">Glossary</a>
       <a class="nav__link" href="./game/">Game</a>
       <a class="nav__link" href="./neural/">Neural</a>
+      <a class="nav__link" href="./blog/">Blog</a>
     </div>
     <button class="icon-btn" id="theme-btn" aria-label="Colour theme">
       <svg id="theme-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"></svg>
@@ -199,7 +191,7 @@ main {
   <header class="hero">
     <span class="lbl">Zero dependencies · public</span>
     <h1>Learn the words.<br>Then use them.</h1>
-    <p>Four short, self-contained pieces. No account, no tracking, no install. Start with the opener if this is your first time.</p>
+    <p>Literacy suite plus a senior-dev field guide. No account, no tracking, no install. Start with the opener if this is your first time.</p>
   </header>
 
   <div class="doors">
@@ -229,6 +221,13 @@ main {
       <h2>Neural Quiz</h2>
       <p>Epoch, Batch, Logit, Learning Rate, Dropout. Short multiple-choice with a $5M final question.</p>
       <span class="door__cta">Take quiz →</span>
+    </a>
+
+    <a class="door door--wide" href="./blog/">
+      <span class="door__num">05 · blog · Aug 2026</span>
+      <h2>Field Guide v3.1</h2>
+      <p>Senior devs + QA. Origin → arsenal → prompting craft → local models → next wave. Copy-paste prompts. Hash-shareable chapters.</p>
+      <span class="door__cta">Read the guide →</span>
     </a>
   </div>
 
